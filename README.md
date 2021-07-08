@@ -13,11 +13,11 @@ Cards or Flash Cards content types. After creation the content types
 can be edited in the content bank as normal H5P content and combined
 with other content through copy and paste.
 
-After installation teachers may create interactive content in the content
-bank by clicking the _Add_ button one of the _Repurpose resources_
-content types from the drop down to open editor, and selecting questions
-and other options in editor and saving. The new content created from
-the question will appear in the content bank.
+After installation, teachers may create interactive content in the content
+bank by clicking the _Add_ button and then choosing one of the _Repurpose resources_
+content types from the drop down menu, to open the editor, and selecting questions
+and other options in the editor and saving. The new content created from
+the question will now appear inside the content bank.
 
 ## Installation ##
 
