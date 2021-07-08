@@ -94,7 +94,7 @@ class dialogcards {
         $mform->setType('description', PARAM_TEXT);
 
         $url = new moodle_url('/question/edit.php', array(
-            'courseid' => ($this->context->contextlevel == CONTEXT_SYSTEM) ? SITEID : $this->context->get_course_context()->instanceid,
+            'courseid' => ($this->context->contextlevel != CONTEXT_COURSE) ? SITEID : $this->context->instanceid,
         ));
         $mform->addElement(
             'static',
