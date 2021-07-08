@@ -25,8 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$string['pluginname'] = 'Reciclando recursos';
-$string['description'] = 'Reciclando recursos';
+$string['pluginname'] = 'Reutilizar recursos';
+$string['description'] = 'Reutilizar recursos';
 $string['duration'] = 'Duración';
 $string['example'] = 'Ejemplo';
 $string['gotoquestionbank'] = 'Ir al Banco de preguntas';
@@ -37,7 +37,7 @@ $string['importdialogcards'] = 'Importar Tarjetas de Diálogo';
 $string['importcolumn'] = 'Importar a Columna';
 $string['importcoursepresentation'] = 'Importar a Presentación de Curso';
 $string['importflashcards'] = 'Importar Tarjetas de Memoria';
-$string['importsinglechoiceset'] = 'Importar onjunto de Opción Única';
+$string['importsinglechoiceset'] = 'Importar Conjunto de Opción Única';
 $string['importquestionset'] = 'Importar un Conjunto de Pregunta';
 $string['importquestion'] = 'Importar una sola pregunta';
 $string['importvideo'] = 'Importar a un Video Interactivo';
