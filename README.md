@@ -23,9 +23,8 @@ the question will appear in the content bank.
 
 1. Install code in Moodle subdirectory _contentbank/contenttype/repurpose_
 2. Go to admin settings page to complete installation
-3. Go to Plugins
--> Content types -> Manage content types make sure plugin shows in the
-order you would like
+3. Go to Site administration / Plugins / Content bank / Manage content types 
+   and make sure Repurpose resources plugin shows in the order you would like
 4. Edit roles as necessary to give user permission
 to access content bank and create content from repuposed resources.
 5. Install any needed content types either by running H5P schedule task
