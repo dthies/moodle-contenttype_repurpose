@@ -15,6 +15,7 @@ with other content through copy and paste.
 
 After installation, teachers may create interactive content in the content
 bank by navigating to a course which has the Moodle questions to use, 
+(failor to do this might cause a 'Coding error detected...' error),
 clicking the _Add_ button and then choosing one of the _Repurpose resources_
 content types from the drop down menu, to open the editor, and selecting questions
 and other options in the editor and saving. The new content created from
