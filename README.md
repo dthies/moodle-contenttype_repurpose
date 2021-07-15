@@ -14,7 +14,7 @@ can be edited in the content bank as normal H5P content and combined
 with other content through copy and paste.
 
 After installation, teachers may create interactive content in the content
-bank by navigating to a course which has the Moodle questions to use, 
+bank by navigating to a course which has the Moodle questions to use,
 clicking the _Add_ button and then choosing one of the _Repurpose resources_
 content types from the drop down menu, to open the editor, and selecting questions
 and other options in the editor and saving. The new content created from
@@ -24,7 +24,7 @@ the question will now appear inside the content bank.
 
 1. Install code in Moodle subdirectory _contentbank/contenttype/repurpose_
 2. Go to admin settings page to complete installation
-3. Go to Site administration / Plugins / Content bank / Manage content types 
+3. Go to Site administration / Plugins / Content bank / Manage content types
    and make sure Repurpose resources plugin shows in the order you would like
 4. Edit roles as necessary to give user permission
 to access content bank and create content from repuposed resources.
