@@ -28,4 +28,4 @@ $plugin->component = 'contenttype_repurpose';
 $plugin->release = '1.0';
 $plugin->version = 2021070404;
 $plugin->requires = 2020061502.06; // Requires this Moodle version 3.9.2.
-$plugin->maturity = MATURITY_STABLE
+$plugin->maturity = MATURITY_STABLE;
