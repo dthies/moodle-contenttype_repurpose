@@ -291,4 +291,13 @@ class dialogcards {
 
         return null;
     }
+
+    /**
+     * Process files attachded to form.
+     *
+     * @param moodle_form $mform form that is submitted
+     * @return stdClass
+     */
+    public function process_files($mform): void {
+    }
 }

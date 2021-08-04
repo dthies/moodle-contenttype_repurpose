@@ -79,6 +79,47 @@ class column extends dialogcards {
     }
 
     /**
+     * Modify or create an repurpose content from the form data.
+     *
+     * @param stdClass $data Form data to create or modify an repurpose content.
+     *
+     * @return int The id of the edited or created content.
+     */
+    public function get_content(stdClass $data): ?stdClass {
+        global $DB;
+
+        $content = parent::get_content($data);
+
+        // Image files will be added archive later, but add metadata to content.
+        $this->mediafiles = $this->mediafiles ?? [];
+        foreach ($this->mediafiles as $key => $file) {
+            switch (preg_replace('/\\/.*/', '', $file->path)) {
+                case 'audios':
+                    $content->content[] = (object) array(
+                        'content' => $this->write_audio($file, $data->mediatitle[$key]),
+                        'useSeparator' => 'auto',
+                    );
+                    break;
+                case 'images':
+                    $content->content[] = (object) array(
+                        'content' => $this->write_image($file, $data->mediatitle[$key]),
+                        'useSeparator' => 'auto',
+                    );
+                    break;
+                case 'videos':
+                    $content->content[] = (object) array(
+                        'content' => $this->write_video($file, $data->mediatitle[$key]),
+                        'useSeparator' => 'auto',
+                    );
+                    break;
+            }
+
+        }
+
+        return $content;
+    }
+
+    /**
      * Turns question into an object structure for h5p content
      *
      * @param stdClass $question the question data.
@@ -87,13 +128,9 @@ class column extends dialogcards {
     public function write_question(stdClass $question): ?stdClass {
         global $CFG, $OUTPUT;
 
-        $writerclass = 'contenttype_repurpose\\local\\qtype_' . $question->qtype;
-
-        $question->contextid = $this->context->id;
-        if (!class_exists($writerclass) || !empty($question->parent)) {
+        if (!$writer = $this->get_writer($question)) {
             return null;
         }
-        $writer = new $writerclass($question);
 
         $content = new stdClass();
         $content = (object) array(
@@ -128,7 +165,7 @@ class column extends dialogcards {
      *         or an empty array if everything is OK (true allowed for backwards compatibility too).
      */
     public function validation($data, $files) {
-        global $DB;
+        global $DB, $USER;
 
         $errors = array();
         $category = $DB->get_record('question_categories', array(
@@ -138,10 +175,18 @@ class column extends dialogcards {
         $questions = get_questions_category($category, !empty($data->recurse));
         if (empty(array_filter($questions, function($question) use ($category, $data) {
             return empty($question->parent)
-                && class_exists('\\contenttype_repurpose\\local\\qtype_' . $question->qtype)
+                && $this->get_writer($question)
                 && (key_exists('recurse', $data) || $question->category == $category->id);
         }))) {
-            $errors['category'] = get_string('noquestionsselected', 'contenttype_repurpose');
+            $fs = get_file_storage();
+            $context = context_user::instance($USER->id);
+            $count = 0;
+            foreach ($data['mediafile'] as $draftid) {
+                $count += count($fs->get_area_files($context->id, 'user', 'draft', $draftid, 'id DESC', false));
+            }
+            if (empty($count)) {
+                $errors['category'] = get_string('noquestionsselected', 'contenttype_repurpose');
+            }
         }
 
         return $errors;
@@ -156,5 +201,220 @@ class column extends dialogcards {
         parent::add_form_fields($mform);
 
         $mform->removeElement('description');
+
+        $mform->addElement('header', 'mediafiles', get_string('mediafiles', 'contenttype_repurpose', '{no}'));
+        $mform->setExpanded('mediafiles', false);
+
+        $groupelements[] = $mform->createElement(
+            'filepicker',
+            'mediafile',
+            get_string('mediafile', 'contenttype_repurpose', '{no}'),
+            null,
+            array(
+                'maxbytes' => 0,
+                'accepted_types' => array(
+                    'gif',
+                    'png',
+                    'jpg',
+                    'mp4',
+                    'webm',
+                )
+            )
+        );
+        $groupelements[] = $mform->createElement(
+            'text',
+            'mediatitle',
+            get_string('mediatitle', 'contenttype_repurpose'),
+            array(
+                'size' => 20,
+            )
+        );
+
+        $this->repeatelements[] = $mform->createElement(
+            'group',
+            'mediagroup',
+            get_string('mediafile', 'contenttype_repurpose', '{no}'),
+            $groupelements,
+            get_string('mediatitle', 'contenttype_repurpose') . ' ',
+            false
+        );
+
+        $this->repeatoptions = array(
+            'mediatitle' => array(
+                'type' => PARAM_TEXT,
+            ),
+        );
+    }
+
+    /**
+     * Return helper to write question
+     *
+     * @param question $question question
+     * @return stdClass
+     */
+    public function get_writer($question) {
+        $question->contextid = $this->context->id;
+        if (empty($question->parent)) {
+            foreach (array('repurposeplus', 'repurpose') as $plugin) {
+                $writerclass = "contenttype_$plugin\\local\\qtype_" . $question->qtype;
+
+                if (class_exists($writerclass) && empty($question->parent)) {
+                    return new $writerclass($question);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Process files attachded to form.
+     *
+     * @param moodle_form $form form that is submitted
+     * @return stdClass
+     */
+    public function process_files($form): void {
+        global $USER;
+
+        $data = $form->get_data();
+        $fs = get_file_storage();
+        $context = context_user::instance($USER->id);
+        foreach ($data->mediafile ?? array() as $key => $draftid) {
+            if (
+                ($files = $fs->get_area_files($context->id, 'user', 'draft', $draftid, 'id DESC', false))
+                && $file = reset($files)
+            ) {
+                switch ($file->get_mimetype()) {
+                    case 'audio/mp3':
+                    case 'audio/m4a':
+                    case 'audio/wav':
+                        $filename = $this->getname('source', $file->get_filename());
+                        $this->files['content/audios/' . $filename] = $file;
+                        $this->mediafiles[$key] = (object) array(
+                            'license' => 'U',
+                            'path' => 'audios/' . $filename,
+                            'mime' => $file->get_mimetype(),
+                        );
+                        break;
+                    case 'image/gif':
+                    case 'image/png':
+                    case 'image/jpeg':
+                        $filename = $this->getname('image', $file->get_filename());
+                        $this->files['content/images/' . $filename] = $file;
+                        $imageinfo = $file->get_imageinfo();
+                        $this->mediafiles[$key] = (object) array(
+                            'license' => 'U',
+                            'path' => 'images/' . $filename,
+                            'height' => $imageinfo['height'],
+                            'width' => $imageinfo['width'],
+                            'mime' => $imageinfo['mimetype'],
+                        );
+                        break;
+                    case 'video/mp4':
+                    case 'video/webm':
+                    case 'video/ogg':
+                    case 'audio/ogg':
+                        $filename = $this->getname('source', $file->get_filename());
+                        $this->files['content/videos/' . $filename] = $file;
+                        $this->mediafiles[$key] = (object) array(
+                            'license' => 'U',
+                            'path' => 'videos/' . $filename,
+                            'mime' => $file->get_mimetype(),
+                        );
+                        break;
+                }
+            }
+        }
+    }
+
+    /**
+     * Write audio subcontent
+     *
+     * @param stdClass $file audio file
+     * @param string $title audio title
+     * @return stdClass
+     */
+    public function write_audio(stdClass $file, string $title): stdClass {
+        $content = json_decode('{
+            "params": {
+              "playerMode": "minimalistic",
+              "fitToWrapper": false,
+              "controls": true,
+              "autoplay": false,
+              "playAudio": "Play audio",
+              "pauseAudio": "Pause audio",
+              "contentName": "Audio",
+              "audioNotSupported": "Your browser does not support this audio",
+              "files": []
+            },
+            "library": "H5P.Audio 1.4",
+            "metadata": {
+              "contentType": "Audio",
+              "license": "U",
+              "title": "Untitled Audio"
+            }
+        }');
+        $content->params->files = array($file);
+        $content->metadata->title = $title ?? 'audio';
+        $content->subContentId = $this->create_subcontentid();
+
+        return $content;
+    }
+
+    /**
+     * Write image subcontent
+     *
+     * @param stdClass $file image file
+     * @param string $title image title
+     * @return stdClass
+     */
+    public function write_image(stdClass $file, string $title): stdClass {
+        $content = json_decode('{
+            "params": {
+              "contentName": "Image",
+              "file": {
+              },
+              "alt": "logo"
+            },
+            "library": "H5P.Image 1.1",
+            "metadata": {
+              "contentType": "Image",
+              "license": "U",
+              "title": "Untitled Image"
+            }
+        }');
+        $content->params->file = $file;
+        $content->params->alt = $title ?? 'image';
+        $content->metadata->title = $title ?? 'image';
+        $content->subContentId = $this->create_subcontentid();
+
+        return $content;
+    }
+
+    /**
+     * Write video subcontent
+     *
+     * @param stdClass $file video file
+     * @param string $title video title
+     * @return stdClass
+     */
+    public function write_video(stdClass $file, string $title): stdClass {
+        $content = json_decode('{
+            "params": {
+              "visuals": { "fit": true, "controls": true },
+              "playback": { "autoplay": false, "loop": false },
+              "sources": []
+            },
+            "library": "H5P.Video 1.5",
+            "metadata": {
+              "contentType": "Video",
+              "license": "U",
+              "title": "Untitled Video"
+            }
+        }');
+        $content->params->sources = array($file);
+        $content->metadata->title = $title ?? 'video';
+        $content->subContentId = $this->create_subcontentid();
+
+        return $content;
     }
 }

@@ -100,14 +100,6 @@ class editor extends \contenttype_h5p\form\editor {
         $helperclass = $this->get_helperclass($library);
         $this->helper = new $helperclass($context);
 
-        $machinename = preg_replace('/ .*/', '', $this->helper->library);
-        if (in_array($machinename, array(
-            'H5P.CoursePresentation',
-            'H5P.InteractiveVideo',
-        ))) {
-            $this->add_content_selector($machinename);
-        }
-
         $this->helper->add_form_fields($mform);
 
         $this->helper->repeatoptions = $this->helper->repeatoptions ?? array();
@@ -131,6 +123,8 @@ class editor extends \contenttype_h5p\form\editor {
         global $DB, $USER;
 
         $context = context::instance_by_id($data->contextid, MUST_EXIST);
+
+        $this->helper->process_files($this);
 
         $h5pparams = $this->helper->get_content($data);
 
@@ -212,9 +206,10 @@ class editor extends \contenttype_h5p\form\editor {
                 }, array_column($packer->list_files($filename), 'pathname', 'pathname'));
 
                 $itemid = file_get_unused_draft_itemid();
+                $filename = $file->get_filename();
                 $file->delete();
                 $file = $packer->archive_to_storage($files, context_user::instance($USER->id)->id,
-                    'user', 'draft', $itemid,  '/', 'content.h5p');
+                    'user', 'draft', $itemid,  '/', $filename);
             }
         }
         $file->set_license($data->license);

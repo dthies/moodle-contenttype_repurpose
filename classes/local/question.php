@@ -116,13 +116,17 @@ class question extends column {
         $PAGE->requires->js_call_amd('contenttype_repurpose/formupdate', 'init', array($this->context->id, 'question'));
 
         parent::add_form_fields($mform);
+        $mform->removeElement('mediafiles');
+        $this->repeatelements = [];
+        $this->repeatoptions = [];
+
         // Add question selector.
         $questions = array();
         $category = $DB->get_record('question_categories', array('contextid' => $this->context->id, 'parent' => 0));
         foreach (get_questions_category($category, true) as $question) {
             if (
                 question_has_capability_on($question, 'use') &&
-                class_exists('contenttype_repurpose\\local\\qtype_' . $question->qtype) &&
+                $this->get_writer($question) &&
                 $category->id == $question->category
             ) {
                 $questions[$question->id] = $question->name;
@@ -155,7 +159,7 @@ class question extends column {
             foreach (get_questions_category($category, true) as $question) {
                 if (
                     question_has_capability_on($question, 'use') &&
-                    class_exists('contenttype_repurpose\\local\\qtype_' . $question->qtype) &&
+                    $this->get_writer($question) &&
                     (!empty($mform->getElementValue('recurse')) || $category->id == $question->category)
                 ) {
                     $questions[$question->id] = $question->name;
