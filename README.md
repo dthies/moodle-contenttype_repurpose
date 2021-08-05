@@ -1,17 +1,18 @@
 # Repurpose resources conttentype plugin #
 
 Create interactive content from existing Moodle activities by importing
-questions from the Moodle questiom bank into the content bank as basic
-H5P content types
+media files and questions from the Moodle questiom bank into the content
+bank as basic H5P content types.
 
-Currently this plugin supports four basic Moodle question types:
-Essay, Multiple Choice, Short Answer, and True/False.  They can be
-imported individually as Essay, Multiple Choice, Guess the Answer,
-and True/False H5P content types. Questions in a directory can be
-imported collectively to create a Column, Single Choice Set, Dialog
-Cards or Flash Cards content types. After creation the content types
-can be edited in the content bank as normal H5P content and combined
-with other content through copy and paste.
+Currently this plugin supports four basic Moodle question types: Essay,
+Multiple Choice, Short Answer, and True/False.  They can be imported
+individually as Essay, Multiple Choice, Guess the Answer, and True/False
+H5P content types. Questions in a directory can be imported collectively
+to create a Column, Single Choice Set, Dialog Cards or Flash Cards
+content types. Audio, video, and image files can also be imported into
+the column content type. After creation the content types can be edited
+in the content bank as normal H5P content and combined with other content
+through copy and paste.
 
 After installation, teachers may create interactive content in the content
 bank by navigating to a course which has the Moodle questions to use,
