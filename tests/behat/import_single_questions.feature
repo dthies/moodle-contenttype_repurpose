@@ -45,7 +45,7 @@ Feature: Import single question into content bank as H5P
 
   @javascript
   Scenario: Import Multiple choice question
-    When I select "Content bank" from flat navigation drawer
+    When I navigate to "Content bank" in current page administration
     And I click on "Add" "button"
     And I click on "Import a single question" "link"
     And I set the field "Category" to "Test questions"
@@ -57,7 +57,7 @@ Feature: Import single question into content bank as H5P
 
   @javascript
   Scenario: Import short answer question
-    When I select "Content bank" from flat navigation drawer
+    When I navigate to "Content bank" in current page administration
     And I click on "Add" "button"
     And I click on "Import a single question" "link"
     And I set the field "Category" to "Test questions"
@@ -70,7 +70,7 @@ Feature: Import single question into content bank as H5P
 
   @javascript @contenttype_repurpose_column
   Scenario: Import a column
-    When I select "Content bank" from flat navigation drawer
+    When I navigate to "Content bank" in current page administration
     And I click on "Add" "button"
     And I click on "Import to Column" "link"
     And I set the field "Category" to "Test questions"
