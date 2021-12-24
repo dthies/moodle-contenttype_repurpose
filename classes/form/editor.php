@@ -126,6 +126,10 @@ class editor extends \contenttype_h5p\form\editor {
 
         $this->helper->process_files($this);
 
+        // Raise time and memory, as importing can be quite intensive.
+        core_php_time_limit::raise();
+        raise_memory_limit(MEMORY_EXTRA);
+
         $h5pparams = $this->helper->get_content($data);
 
         $tempdir = make_request_directory();
