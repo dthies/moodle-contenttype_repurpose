@@ -1,8 +1,8 @@
-@contenttype @contenttype_repurpose @contenttype_repurpose_single @_file_upload
-Feature: Import single question into content bank as H5P
+@contenttype @contenttype_repurpose @_file_upload
+Feature: Import column into content bank as H5P
   As a teacher
   In order to use my questions in interactive content
-  I need to import them as H5P question content types
+  I need to import them as H5P column content types
 
   Background:
     Given the following "users" exist:
@@ -17,29 +17,17 @@ Feature: Import single question into content bank as H5P
     And the following "question categories" exist:
       | contextlevel | reference | name           |
       | Course       | C1        | Test questions |
+    And the following "questions" exist:
+      | questioncategory | qtype       | name             | template    |
+      | Test questions   | multichoice | Multi-choice-001 | two_of_four |
     Given I log in as "admin"
     And I navigate to "H5P > Manage H5P content types" in site administration
     And I upload "contentbank/contenttype/repurpose/tests/fixtures/column-252.h5p" file to "H5P content type" filemanager
     And I wait until the page is ready
     And I click on "Upload H5P content types" "button" in the "#fitem_id_uploadlibraries" "css_element"
     And I wait until the page is ready
-
-  @javascript
-  Scenario: Import Multiple choice question
-    Given the following "questions" exist:
-      | questioncategory | qtype       | name             | template    |
-      | Test questions   | multichoice | Multi-choice-001 | two_of_four |
-    When I am on the "C1" "contenttype_repurpose > question" page logged in as "teacher1"
-    And I set the field "Category" to "Test questions"
-    And I click on "Save" "button"
-    And I switch to "h5p-player" class iframe
-    And I switch to "h5p-iframe" class iframe
-    And I click on "Check" "button"
-    Then I should see "That is not right at all"
-
-  @javascript
-  Scenario: Import short answer question
-    When I log in as "teacher1"
+    And I log out
+    And I log in as "teacher1"
     And I am on "Course 1" course homepage
     And I navigate to "Question bank" in current page administration
     And I add a "Short answer" question filling the form with:
@@ -54,11 +42,13 @@ Feature: Import single question into content bank as H5P
       | id_answer_1          | *                                         |
       | id_fraction_1        | None                                      |
       | id_feedback_1        | Your answer is incorrect.                 |
-    And I am on the "C1" "contenttype_repurpose > question" page
+
+  @javascript @contenttype_repurpose_column
+  Scenario: Import a column
+    When I am on the "C1" "contenttype_repurpose > column" page
     And I set the field "Category" to "Test questions"
-    And I set the field "Question" to "shortanswer-001"
-    And I press "Save"
+    And I click on "Save" "button"
     And I switch to "h5p-player" class iframe
     And I switch to "h5p-iframe" class iframe
-    And I click on "Click to see the answer" "button"
-    Then I should see "French"
+    Then I should see "What is the national langauge in France"
+    And I should see "Which are the odd numbers"
