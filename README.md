@@ -8,7 +8,7 @@ Currently this plugin supports four basic Moodle question types: Essay,
 Multiple Choice, Short Answer, and True/False.  They can be imported
 individually as Essay, Multiple Choice, Guess the Answer, and True/False
 H5P content types. Questions in a directory can be imported collectively
-to create a Column, Single Choice Set, Dialog Cards or Flash Cards
+to create a Column, Crossword, Single Choice Set, Dialog Cards or Flash Cards
 content types. Audio, video, and image files can also be imported into
 the column content type. After creation the content types can be edited
 in the content bank as normal H5P content and combined with other content

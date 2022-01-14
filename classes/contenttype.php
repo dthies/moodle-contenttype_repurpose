@@ -26,6 +26,7 @@ namespace contenttype_repurpose;
 
 use core\event\contentbank_content_viewed;
 use core_contentbank\content;
+use core_h5p\file_storage;
 use stored_file;
 use core_h5p\editor_ajax;
 use core_h5p\local\library\autoloader;
@@ -55,26 +56,14 @@ class contenttype extends \core_contentbank\contenttype {
      * @param  content $content The content to be displayed.
      * @return string            HTML code to include in view.php.
      */
-    public function get_view_content(content $content): string {
-        global $OUTPUT;
-
+    public function get_view_content(\core_contentbank\content $content): string {
         // Trigger an event for viewing this content.
         $event = contentbank_content_viewed::create_from_record($content->get_content());
         $event->trigger();
 
-        $repurpose = '';
-
-        $file = $content->get_file();
-        $qformat = new \qformat_xml();
-
-        $questions = $qformat->readquestions(array($file->get_content()));
-
-        $context = array(
-            'url' => $content->get_file_url(),
-            'questions' => $questions,
-        );
-
-        return $OUTPUT->render_from_template('contenttype_repurpose/viewxml', $context);
+        $fileurl = $content->get_file_url();
+        $html = \core_h5p\player::display($fileurl, new \stdClass(), true);
+        return $html;
     }
 
     /**
@@ -151,39 +140,68 @@ class contenttype extends \core_contentbank\contenttype {
         $h5pcontenttypes = $editorajax->getLatestLibraryVersions();
         $machinenames = array_column($h5pcontenttypes, 'machine_name');
 
-        $types = [
+        $types = [];
+        if (
             array_intersect(array(
                 'H5P.MultiplueChoice',
                 'H5P.FillBlanks',
                 'H5P.Essay',
                 'H5P.TrueFalse',
                 'H5P.GuessAnswer',
-            ), $machinenames) ? (object) array(
+            ), $machinenames)
+        ) {
+            $types[] = (object) array(
                 'typename' => get_string('importquestion', 'contenttype_repurpose'),
                 'typeeditorparams' => 'library=question',
                 'typeicon' => $OUTPUT->image_url('e/question', 'core'),
-            ) : null,
-            in_array('H5P.Column', $machinenames) ? (object) array(
-                'typename' => get_string('importcolumn', 'contenttype_repurpose'),
-                'typeeditorparams' => 'library=column',
-                'typeicon' => $OUTPUT->image_url('column', 'contenttype_repurpose'),
-            ) : null,
-            in_array('H5P.Dialogcards', $machinenames) ? (object) array(
-                'typename' => get_string('importdialogcards', 'contenttype_repurpose'),
-                'typeeditorparams' => 'library=dialogcards',
-                'typeicon' => $OUTPUT->image_url('dialogcards', 'contenttype_repurpose'),
-            ) : null,
-            in_array('H5P.Flashcards', $machinenames) ? (object) array(
-                'typename' => get_string('importflashcards', 'contenttype_repurpose'),
-                'typeeditorparams' => 'library=flashcards',
-                'typeicon' => $OUTPUT->image_url('flashcards', 'contenttype_repurpose'),
-            ) : null,
-            in_array('H5P.SingleChoiceSet', $machinenames) ? (object) array(
-                'typename' => get_string('importsinglechoiceset', 'contenttype_repurpose'),
-                'typeeditorparams' => 'library=singlechoiceset',
-                'typeicon' => $OUTPUT->image_url('singlechoiceset', 'contenttype_repurpose'),
-            ) : null,
-        ];
+            );
+        }
+        $h5pfilestorage = new file_storage();
+        foreach ($h5pcontenttypes as $h5pcontenttype) {
+            $typeicon = $h5pfilestorage->get_icon_url(
+                $h5pcontenttype->id,
+                $h5pcontenttype->machine_name,
+                $h5pcontenttype->major_version,
+                $h5pcontenttype->minor_version
+            );
+            switch ($h5pcontenttype->machine_name) {
+                case 'H5P.Column':
+                    $types[] = (object) array(
+                        'typename' => get_string('importcolumn', 'contenttype_repurpose'),
+                        'typeeditorparams' => 'library=column',
+                        'typeicon' => $typeicon,
+                    );
+                    break;
+                case 'H5P.Crossword':
+                    $types[] = (object) array(
+                        'typename' => get_string('importcrossword', 'contenttype_repurpose'),
+                        'typeeditorparams' => 'library=crossword',
+                        'typeicon' => $typeicon,
+                    );
+                    break;
+                case 'H5P.Dialogcards':
+                    $types[] = (object) array(
+                        'typename' => get_string('importdialogcards', 'contenttype_repurpose'),
+                        'typeeditorparams' => 'library=dialogcards',
+                        'typeicon' => $typeicon,
+                    );
+                    break;
+                case 'H5P.Flashcards':
+                    $types[] = (object) array(
+                        'typename' => get_string('importflashcards', 'contenttype_repurpose'),
+                        'typeeditorparams' => 'library=flashcards',
+                        'typeicon' => $typeicon,
+                    );
+                    break;
+                case 'H5P.SingleChoiceSet':
+                    $types[] = (object) array(
+                        'typename' => get_string('importsinglechoiceset', 'contenttype_repurpose'),
+                        'typeeditorparams' => 'library=singlechoiceset',
+                        'typeicon' => $typeicon,
+                    );
+                    break;
+            }
+        };
 
         return array_filter($types);
     }

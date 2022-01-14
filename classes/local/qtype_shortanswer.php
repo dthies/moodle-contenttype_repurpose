@@ -28,8 +28,6 @@ namespace contenttype_repurpose\local;
 use stdClass;
 use context_user;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Question export helper for H5P Quiz content type
  *

@@ -36,6 +36,7 @@ $string['imagefile'] = 'Image file';
 $string['importdialogcards'] = 'Import Dialog Cards';
 $string['importcolumn'] = 'Import to Column';
 $string['importcoursepresentation'] = 'Import to Course Presentation';
+$string['importcrossword'] = 'Import Crossword';
 $string['importflashcards'] = 'Import Flash Cards';
 $string['importsinglechoiceset'] = 'Import Single Choice Set';
 $string['importquestionset'] = 'Import a Question Set';
