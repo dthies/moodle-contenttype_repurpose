@@ -35,6 +35,7 @@ use context;
 use stdClass;
 use moodle_exception;
 use moodle_form;
+use moodle_url;
 use question_bank;
 use contenttype_repurpose\local\dialogcards;
 
@@ -152,37 +153,86 @@ class crossword extends dialogcards {
         parent::add_form_fields($mform);
         $this->repeatelements = [];
         $this->repeatoptions = [];
-
-        $mform->addElement(
-            'filepicker',
-            'backgroundimage',
-            get_string('backgroundimage', 'contenttype_repurpose'),
-            null,
-            array(
-                'maxbytes' => 0,
-                'accepted_types' => array('png', 'jpg', 'gif'),
-            )
-        );
+        $mform->addElement('hidden', 'background');
+        $mform->setType('background', PARAM_RAW);
+        $backgroundimage = [
+            $mform->createElement('button', 'addfile', get_string('addfile', 'contenttype_repurpose')),
+        ];
+        $mform->addGroup($backgroundimage, 'backgroundimage', get_string('backgroundimage', 'contenttype_repurpose'));
+        $mform->addElement('hidden', 'draftid', 0);
+        $mform->setType('draftid', PARAM_INT);
     }
 
     /**
-     * Process files attachded to form.
+     * Change definitiion after supplied data.
      *
-     * @param moodleform $form form that is submitted
+     * @param moodle_form $mform form with data to be modified
      * @return void
      */
-    public function process_files($form): void {
-        if ($imagecontent = $form->get_file_content('backgroundimage')) {
-            $filename = $this->getname('backgroundImage', $form->get_new_filename('backgroundimage'));
-            $this->files['content/images/' . $filename] = array($form->get_file_content('backgroundimage'));
-            $imageinfo = @getimagesizefromstring($imagecontent);
-            $this->background = (object) array(
-                'license' => 'U',
-                'path' => 'images/' . $filename,
-                'height' => $imageinfo[1],
-                'width' => $imageinfo[0],
-                'mime' => $imageinfo['mime'],
+    public function definition_after_data($mform) {
+        global $DB, $OUTPUT, $PAGE, $USER;
+
+        $fs = get_file_storage();
+
+        // If there is an existing image display it.
+        if (
+            ($id = $mform->getElementValue('id'))
+            && !$mform->getElementValue('draftid')
+            && $record = $DB->get_record('contentbank_content', array('id' => $id))
+        ) {
+            $content = new \contenttype_repurpose\content($record);
+            $configdata = json_decode($content->get_configdata());
+            if (
+                !empty($configdata)
+            ) {
+                $this->set_data($mform, $configdata);
+                $imagepath = $configdata->background;
+                $mform->setDefault('background', $imagepath);
+            }
+        } else {
+            $imagepath = $mform->getElementValue('background') ?? '';
+        }
+        if (
+            (!$draftid = $mform->getElementValue('draftid') ?? 0)
+            || optional_param('library', '', PARAM_TEXT)
+        ) {
+            $PAGE->requires->js_call_amd('contenttype_repurpose/editbackground', 'init', array($this->context->id, 'crossword'));
+        }
+
+        $image = file_prepare_draft_area(
+            $draftid,
+            $mform->getElementValue('contextid'),
+            'contenttype_repurpose',
+            'content',
+            $id,
+            ['subdirs' => true],
+            $OUTPUT->render_from_template( 'contenttype_repurpose/media',
+                ['path' => $imagepath]
+            )
+        );
+        $mform->setDefault('draftid', $draftid);
+        if (!empty($imagepath)) {
+            $mform->removeElement('backgroundimage');
+            $mform->insertElementBefore(
+                $mform->createElement( 'static', 'backgroundimage', get_string('backgroundimage', 'contenttype_repurpose'), $image),
+                'background'
             );
+        }
+        $files = $fs->get_area_files(context_user::instance($USER->id)->id, 'user', 'draft', $draftid, 'id DESC', false);
+        foreach ($files as $file) {
+            if (
+                ($file->get_filepath() . $file->get_filename() == '/content/' . $imagepath)
+                && $imageinfo = $file->get_imageinfo()
+            ) {
+                $this->files['content/' . $imagepath] = $file;
+                $this->background = (object) array(
+                    'license' => 'U',
+                    'path' => 'images/' . $file->get_filename(),
+                    'height' => $imageinfo['height'],
+                    'width' => $imageinfo['width'],
+                    'mime' => $imageinfo['mimetype'],
+                );
+            }
         }
     }
 }

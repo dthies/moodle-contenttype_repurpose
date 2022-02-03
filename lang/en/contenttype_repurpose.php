@@ -26,9 +26,11 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['pluginname'] = 'Repurpose resources';
+$string['addfile'] = 'Add file';
 $string['backgroundimage'] = 'Background image';
 $string['description'] = 'Repurpose resources';
 $string['duration'] = 'Duration';
+$string['editmedia'] = 'Edit media';
 $string['example'] = 'Example';
 $string['gotoquestionbank'] = 'Go to question bank';
 $string['globalbackground'] = 'Global background';
@@ -53,6 +55,7 @@ $string['mediatitle'] = 'Media title';
 $string['missingsource'] = 'A video source must be supplied as a mp4, webm or ogv file or a YouTube link';
 $string['name'] = 'Name';
 $string['name_help'] = 'Enter name for the content or leave blank for default from question or category';
+$string['newfile'] = 'New file';
 $string['noquestionsselected'] = 'No questions are available in the currest selection';
 $string['posterimage'] = 'Poster image';
 $string['previewquestion'] = 'Preview question';
@@ -62,14 +65,18 @@ $string['privacy:metadata'] = 'The Repurpose contenttype plugin does not store a
 $string['repurpose:access'] = 'Access repurposed resources in the content bank';
 $string['repurpose:upload'] = 'Upload resources to use in content';
 $string['repurpose:useeditor'] = 'Create content using the repurpose resources tools';
+$string['saveash5p'] = 'Save as H5P';
+$string['saveash5p_help'] = 'Save content immediately as H5P. If not set, the data will be saved and can be edited again. The public files will still be available as H5P to download or use in activities';
 $string['slideno'] = 'Slide {$a}';
 $string['slidebackground'] = 'Slide background';
 $string['slides'] = 'Slides';
 $string['starttime'] = 'Start time';
 $string['supportedvideolinks'] = 'External video links must be to mp4, webm or ogv files or YouTube links';
+$string['title'] = 'Title';
 $string['tutorial'] = 'Tutorial';
 $string['question'] = 'question';
 $string['question_help'] = 'If you have created or imported questions
 in the question bank, you should be able to selct them individually and
 convert them to H5P';
 $string['videofile'] = 'Video file';
+$string['title_help'] = 'Shows as hover text';

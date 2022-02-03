@@ -76,6 +76,13 @@ class editor extends \contenttype_h5p\form\editor {
         $this->h5peditor = new h5peditor();
 
         $library = $this->_customdata['library'] ?? optional_param('library', 'singlechoiceset', PARAM_TEXT);
+        if ($id && $record = $DB->get_record('contentbank_content', ['id' => $id])) {
+            $content = new \contenttype_repurpose\content($record);
+            $configdata = json_decode($content->get_configdata());
+            $configdata->id = $id;
+            $library = $configdata->library;
+        }
+
         $mform->addElement('html', $OUTPUT->render_from_template('contenttype_repurpose/tutorial', array(
             'library' => $library,
             'type' => get_string('import' . $library, 'contenttype_repurpose'),
@@ -113,7 +120,7 @@ class editor extends \contenttype_h5p\form\editor {
     }
 
     /**
-     * Modify or create an h5p content from the form data.
+     * Modify or create a content from the form data.
      *
      * @param stdClass $data Form data to create or modify an h5p content.
      *
@@ -214,21 +221,83 @@ class editor extends \contenttype_h5p\form\editor {
         }
         $file->set_license($data->license);
 
-        // Creating new content.
-        // The initial name of the content is the title of the H5P content.
-        $cbrecord = new stdClass();
-        $cbrecord->name = json_decode($content->h5pparams)->metadata->title;
-        $context = \context::instance_by_id($data->contextid, MUST_EXIST);
+        if (get_config('contenttype_repurpose', 'saveash5p')) {
+            // Creating new content.
+            // The initial name of the content is the title of the H5P content.
+            $cbrecord = new stdClass();
+            $cbrecord->name = json_decode($content->h5pparams)->metadata->title;
+            $context = \context::instance_by_id($data->contextid, MUST_EXIST);
 
-        // Create entry in content bank.
-        $contenttype = new contenttype($context);
-        $newcontent = $contenttype->create_content($cbrecord);
-        $newcontent->import_file($file);
+            // Create entry in content bank.
+            $contenttype = new contenttype($context);
+            $newcontent = $contenttype->create_content($cbrecord);
+            $newcontent->import_file($file);
 
-        // Deletete the export file.
+            // Delete the export file.
+            $file->delete();
+
+            return $newcontent->get_id();
+        }
+
+        if (empty($data->id)) {
+            // Create a new content.
+            $context = context::instance_by_id($data->contextid, MUST_EXIST);
+            $contenttype = new \contenttype_repurpose\contenttype($context);
+            $record = new stdClass();
+            $content = $contenttype->create_content($record);
+        } else {
+            // Update current content.
+            $record = $DB->get_record('contentbank_content', ['id' => $data->id]);
+            $content = new \contenttype_repurpose\content($record);
+        }
+
+        // Update content.
+        $data->h5pparams = $h5pparams;
+        if (!empty($this->helper->mediafiles)) {
+            $data->mediafiles = json_encode($this->helper->mediafiles);
+        }
+        $content->set_name($data->name);
+        $content->set_configdata(json_encode($data));
+        $content->save_public($file);
         $file->delete();
+        $content->update_content();
 
-        return $newcontent->get_id();
+        if (!empty($this->helper->files)) {
+            if (
+                !empty($data->id)
+                && $files = $fs->get_area_files($data->contextid, 'contenttype_repurpose', 'content', $content->get_id())
+            ) {
+                $path = substr($file->get_filepath() . $file->get_filename(), 1);
+                foreach ($files as $file) {
+                    if (!$file->is_directory() && !key_exists($path, $this->helper->files)) {
+                        $file->delete();
+                    }
+                }
+                unset($path);
+            }
+            foreach ($this->helper->files as $path => $file) {
+                $matches = [];
+                preg_match('/(.*\\/)(.*)/', $path, $matches);
+                $filerecord = [
+                    'contextid' => $data->contextid,
+                    'component' => 'contenttype_repurpose',
+                    'filearea' => 'content',
+                    'itemid' => $content->get_id(),
+                    'filepath' => '/' . $matches[1],
+                    'filename' => $matches[2],
+                    'timecreated' => time(),
+                ];
+                if (is_array($file)) {
+                    $fs->create_file_from_string($filerecord, reset($file));
+                } else if (is_string($file)) {
+                    $fs->create_file_from_string($filerecord, $file);
+                } else {
+                    $fs->create_file_from_storedfile($filerecord, $file);
+                }
+            }
+        }
+
+        return $content->get_id();
     }
 
     /**

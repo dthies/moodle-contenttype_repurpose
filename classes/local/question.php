@@ -54,7 +54,7 @@ require_once($CFG->libdir . '/questionlib.php');
  * @copyright 2020 onward Daniel Thies <dethies@gmail.com>
  * @license   http://www.gnu.org/copyleft/gpl.repurpose GNU GPL v3 or later
  */
-class question extends column {
+class question extends dialogcards {
 
     /** @var $type Machine name for target type */
     public $library = '';
@@ -116,9 +116,7 @@ class question extends column {
         $PAGE->requires->js_call_amd('contenttype_repurpose/formupdate', 'init', array($this->context->id, 'question'));
 
         parent::add_form_fields($mform);
-        $mform->removeElement('mediafiles');
-        $this->repeatelements = [];
-        $this->repeatoptions = [];
+        $mform->removeElement('description');
 
         // Add question selector.
         $questions = array();
@@ -192,7 +190,10 @@ class question extends column {
             }
             $mform->addHelpButton('question', 'question', 'contenttype_repurpose');
             $mform->addHelpButton('previewquestion', 'previewquestion', 'contenttype_repurpose');
+        } else {
+            parent::definition_after_data($mform);
         }
+
     }
 
     /**
@@ -209,5 +210,62 @@ class question extends column {
             $errors['submitbutton'] = 'no submit';
         }
         return $errors;
+    }
+
+    /**
+     * Return helper to write question
+     *
+     * @param question $question question
+     * @return stdClass
+     */
+    public function get_writer($question) {
+        $question->contextid = $this->context->id;
+        if (empty($question->parent)) {
+            foreach (array('repurposeplus', 'repurpose') as $plugin) {
+                $writerclass = "contenttype_$plugin\\local\\qtype_" . $question->qtype;
+
+                if (class_exists($writerclass) && empty($question->parent)) {
+                    return new $writerclass($question);
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Turns question into an object structure for h5p content
+     *
+     * @param stdClass $question the question data.
+     * @return stdClass data to add to content file object
+     */
+    public function write_question(stdClass $question): ?stdClass {
+        global $CFG, $OUTPUT;
+
+        if (!$writer = $this->get_writer($question)) {
+            return null;
+        }
+
+        $content = new stdClass();
+        $content = (object) array(
+            'params' => $writer->process($content),
+            'subContentId' => $writer->create_subcontentid(),
+            'library' => $writer->library,
+            'metadata' => (object) array(
+                'license' => 'U',
+                'authors' => [],
+                'changes' => [],
+                'title' => $question->name,
+                'extraTitle' => $question->name,
+            ),
+        );
+
+        if (!empty($writer->files)) {
+            if (empty($this->files)) {
+                $this->files = array();
+            }
+            $this->files = $this->files + $writer->files;
+        }
+
+        return $content;
     }
 }

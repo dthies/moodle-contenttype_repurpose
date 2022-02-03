@@ -95,7 +95,11 @@ class contenttype extends \core_contentbank\contenttype {
      * @return array
      */
     protected function get_implemented_features(): array {
-        return [
+        return property_exists('\\core_contentbank\\contenttype', 'CAN_DOWNLOAD') ? [
+            self::CAN_DOWNLOAD,
+            self::CAN_EDIT,
+            self::CAN_UPLOAD,
+        ] : [
             self::CAN_EDIT,
             self::CAN_UPLOAD,
         ];
@@ -204,5 +208,32 @@ class contenttype extends \core_contentbank\contenttype {
         };
 
         return array_filter($types);
+    }
+
+    /**
+     * Delete this content from the content_bank.
+     * This method can be overwritten by the plugins if they need to delete specific information.
+     *
+     * @param  content $content The content to delete.
+     * @return boolean true if the content has been deleted; false otherwise.
+     */
+    public function delete_content(content $content): bool {
+        global $DB;
+
+        $fs = get_file_storage();
+
+        // First delete stored files for content.
+        $files = $fs->get_area_files(
+            $content->get_contextid(),
+            'contentype_repurpose',
+            'content',
+            $content->get_id(),
+            'id DESC', false
+        );
+        foreach ($files as $file) {
+            $file->delete();
+        }
+
+        return parent::delete_content($content);
     }
 }

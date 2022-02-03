@@ -8,11 +8,27 @@ import templates from 'core/templates';
  * @param {int} contextid Context id of content bank
  * @param {string} library Library identifier
  */
-export const init = (contextid, library) => {
+const init = (contextid, library) => {
     'use strict';
 
-    document.removeEventListener('change', updateForm.bind(window, contextid, library));
-    document.addEventListener('change', updateForm.bind(window, contextid, library));
+    document.removeEventListener('change', handleChange.bind(window, contextid, library));
+    document.addEventListener('change', handleChange.bind(window, contextid, library));
+};
+
+/**
+ * Update form from change event
+ *
+ * @param {int} contextid Context id of content bank
+ * @param {string} library Library identifier
+ * @param {event} e Event
+ */
+const handleChange = (contextid, library, e) => {
+    if (e.target.closest('form #id_category, form #id_recurse, form #id_question, form [data-action="update"]')) {
+        let form = e.target.closest('form');
+        e.stopPropagation();
+        e.preventDefault();
+        updateForm(contextid, library, form);
+    }
 };
 
 /**
@@ -20,22 +36,17 @@ export const init = (contextid, library) => {
  *
  * @param {int} contextid Context id of content bank
  * @param {string} library Library identifier
- * @param {event} e Event
+ * @param {DOMNode} form Form element to be updated
  */
-const updateForm = function(contextid, library, e) {
-    if (e.target.closest('form #id_category, form #id_recurse, form #id_question, form [data-action="update"]')) {
+const updateForm = (contextid, library, form) => {
         let data = {},
-            form = e.target.closest('form'),
             formdata = new FormData(form),
             params = {
                 contextid: contextid,
-                jsonformdata: JSON.stringify(data),
                 library: library,
                 plugin: 'repurpose'
             };
 
-        e.stopPropagation();
-        e.preventDefault();
         window.onbeforeunload = null;
 
         formdata.forEach((value, key) => {
@@ -49,5 +60,9 @@ const updateForm = function(contextid, library, e) {
             form.parentNode.insertBefore(form.firstChild, form);
             form.remove();
         }).fail(notification.exception);
-    }
+};
+
+export default {
+    init: init,
+    updateForm: updateForm
 };

@@ -44,4 +44,13 @@ use stored_file;
  */
 class content extends \core_contentbank\content {
 
+    /**
+     * Save the public file
+     *
+     * @param stored_file $file File to make publice
+     * @return stored_file|null
+     */
+    public function save_public(stored_file $file): ?stored_file {
+        return parent::import_file($file);
+    }
 }

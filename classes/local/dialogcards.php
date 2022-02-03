@@ -242,6 +242,20 @@ class dialogcards {
      * @return void
      */
     public function definition_after_data($mform) {
+        global $DB, $OUTPUT;
+
+        if (
+            ($id = $mform->getElementValue('id'))
+            && $record = $DB->get_record('contentbank_content', array('id' => $id))
+        ) {
+            $content = new \contenttype_repurpose\content($record);
+            $configdata = json_decode($content->get_configdata());
+            if (
+                !empty($configdata)
+            ) {
+                $this->set_data($mform, $configdata);
+            }
+        }
     }
 
     /**
@@ -299,5 +313,28 @@ class dialogcards {
      * @return stdClass
      */
     public function process_files($mform): void {
+    }
+
+    /**
+     * Process files attachded to form.
+     *
+     * @param moodle_form $mform form that is submitted
+     * @param stdClss $configdata current saved config data
+     * @return stdClass
+     */
+    public function set_data($mform, $configdata): void {
+        foreach ([
+            'name',
+            'license',
+            'description',
+            'category',
+            'mediafiles',
+            'question',
+            'recurse',
+        ] as $field) {
+            if (!empty($configdata->$field)) {
+                $mform->setDefault($field, $configdata->$field);
+            }
+        }
     }
 }
