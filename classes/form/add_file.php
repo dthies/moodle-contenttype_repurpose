@@ -69,7 +69,10 @@ class add_file extends moodleform {
         $mform->addHelpButton('title', 'title', 'contenttype_repurpose');
 
         // Add license selector.
-        $licenses = array_column(license_manager::get_active_licenses(), 'fullname', 'shortname');
+        $licenses = [];
+        foreach (array_column(license_manager::get_active_licenses(), 'fullname', 'shortname') as $shortname => $fullname) {
+            $licenses[editor::get_h5p_license($shortname)] = $fullname;
+        }
         $mform->addElement('select', 'license', get_string('license'), $licenses, '');
         $mform->setDefault('license', $CFG->sitedefaultlicense);
         $mform->addHelpButton('license', 'license', 'contenttype_repurpose');

@@ -181,10 +181,10 @@ class editor extends \contenttype_h5p\form\editor {
         $h5pparams->params = $h5pparams->params ?? null;
         $h5pparams->metadata = $h5pparams->metadata ?? new stdClass;
         $h5pparams->metadata->title = $data->name;
-        $h5pparams->metadata->license = $this->get_h5p_license($data->license);
+        $h5pparams->metadata->license = self::get_h5p_license($data->license);
         $content = (object) array(
             'library' => $this->helper->library,
-            'license' => $this->get_h5p_license($data->license),
+            'license' => self::get_h5p_license($data->license),
             'h5plibrary' => $this->helper->library,
             'h5pparams' => json_encode($h5pparams),
             'contextid' => $context->id,
@@ -205,7 +205,7 @@ class editor extends \contenttype_h5p\form\editor {
             if ($packer->extract_to_pathname($filename, $tempdir)) {
                 $h5p = json_decode(file_get_contents($tempdir . '/h5p.json'));
                 $h5p->metadata = $h5p->metadata ?? new stdClass();
-                $h5p->metadata->license = $this->get_h5p_license($data->license);
+                $h5p->metadata->license = self::get_h5p_license($data->license);
 
                 file_put_contents($tempdir . '/h5p.json', json_encode($h5p));
                 $files = $this->helper->files + array_map(function ($pathname) use ($tempdir) {
@@ -376,7 +376,7 @@ class editor extends \contenttype_h5p\form\editor {
      * @param string $shortname The Moodle license short name
      * @return string H5P license name
      */
-    public function get_h5p_license(string $shortname): string {
+    public static function get_h5p_license(string $shortname): string {
         global $CFG;
 
         $shortnames = array(

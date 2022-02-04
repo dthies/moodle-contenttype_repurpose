@@ -79,6 +79,7 @@ const editForm = function(contextid, library, form, button, modal) {
         if (button.contains(buttons[i])) {
             data.key = i;
             data.title = mediafiles[i].metadata.title || null;
+            data.license = mediafiles[i].metadata.license || null;
         }
     }
     params.jsonformdata = JSON.stringify(data);
@@ -100,8 +101,7 @@ const editForm = function(contextid, library, form, button, modal) {
 const saveForm = function(contextid, library, form, data, modal) {
     'use strict';
 
-    let name = data.get('title'),
-        formdata = new FormData(form),
+    let formdata = new FormData(form),
         key = data.get('key'),
         mediafiles = JSON.parse(formdata.get('mediafiles'));
     if (!mediafiles[key]) {
@@ -117,6 +117,7 @@ const saveForm = function(contextid, library, form, data, modal) {
         Fragment.loadFragment('contenttype_repurpose', 'addfile', contextid, params).done(function(html, js) {
             let media = JSON.parse(html);
             if (media) {
+                media.metadata.license = data.get('license');
                 mediafiles[key] = media;
                 form.querySelector('input[name="mediafiles"]').setAttribute('value', JSON.stringify(mediafiles));
                 FormUpdate.updateForm(contextid, library, form);
@@ -126,7 +127,8 @@ const saveForm = function(contextid, library, form, data, modal) {
             }
         }).fail(notification.exception);
     } else {
-        mediafiles[key].metadata.title = name;
+        mediafiles[key].metadata.title = data.get('title');
+        mediafiles[key].metadata.license = data.get('license');
         form.querySelector('input[name="mediafiles"]').setAttribute('value', JSON.stringify(mediafiles));
         FormUpdate.updateForm(contextid, library, form);
     }
