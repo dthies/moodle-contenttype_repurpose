@@ -115,13 +115,13 @@ const saveForm = function(contextid, library, form, data, modal) {
         });
         params.jsonformdata = JSON.stringify(formdata);
         Fragment.loadFragment('contenttype_repurpose', 'addfile', contextid, params).done(function(html, js) {
-            let media = JSON.parse(html);
-            if (media) {
+            try {
+                let media = JSON.parse(html);
                 media.metadata.license = data.get('license');
                 mediafiles[key] = media;
                 form.querySelector('input[name="mediafiles"]').setAttribute('value', JSON.stringify(mediafiles));
                 FormUpdate.updateForm(contextid, library, form);
-            } else {
+            } catch (e) {
                 modal.show();
                 templates.replaceNodeContents(modal.getRoot().find('.modal-body'), html, js);
             }

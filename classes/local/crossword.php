@@ -186,11 +186,15 @@ class crossword extends dialogcards {
                 !empty($configdata)
             ) {
                 $this->set_data($mform, $configdata);
-                $imagepath = $configdata->background;
-                $mform->setDefault('background', $imagepath);
+                $mform->setDefault(
+                    'background', $configdata->background
+                );
+                $imagepath = json_decode($configdata->background)->params->file->path;
             }
+        } else if ($mform->getElementValue('background')) {
+            $imagepath = json_decode($mform->getElementValue('background'))->params->file->path ?? '';
         } else {
-            $imagepath = $mform->getElementValue('background') ?? '';
+            $imagepath = '';
         }
         if (
             (!$draftid = $mform->getElementValue('draftid') ?? 0)

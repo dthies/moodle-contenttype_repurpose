@@ -64,6 +64,7 @@ const editForm = function(contextid, library, form, button, modal) {
     'use strict';
 
     let formdata = new FormData(form),
+        background = formdata.get('background'),
         data = {
             draftid: formdata.get('draftid'),
         },
@@ -71,6 +72,9 @@ const editForm = function(contextid, library, form, button, modal) {
             contextid: contextid,
             library: library
         };
+    if (background) {
+        data.license = JSON.parse(background).metadata.license;
+    }
     params.jsonformdata = JSON.stringify(data);
     Fragment.loadFragment('contenttype_repurpose', 'addfile', contextid, params).done(function(html, js) {
         modal.show();
@@ -85,9 +89,8 @@ const editForm = function(contextid, library, form, button, modal) {
  * @param {string} library Library identifier
  * @param {DOMNode} form Node for main form
  * @param {FormData} data Modal data
- * @param {object} modal
  */
-const saveForm = function(contextid, library, form, data, modal) {
+const saveForm = function(contextid, library, form, data) {
     'use strict';
 
     let formdata = {},
@@ -98,17 +101,18 @@ const saveForm = function(contextid, library, form, data, modal) {
     data.forEach((value, key) => {
         formdata[key] = value;
     });
-        params.jsonformdata = JSON.stringify(formdata);
-        Fragment.loadFragment('contenttype_repurpose', 'addfile', contextid, params).done(function(html, js) {
-            let result = JSON.parse(html);
-            if (result) {
-                form.querySelector('input[name="background"]').setAttribute('value', result.params.file.path);
-                FormUpdate.updateForm(contextid, library, form);
-            } else {
-                modal.show();
-                templates.replaceNodeContents(modal.getRoot().find('.modal-body'), html, js);
-            }
-        }).fail(notification.exception);
+    params.jsonformdata = JSON.stringify(formdata);
+    Fragment.loadFragment('contenttype_repurpose', 'addfile', contextid, params).done(function(html) {
+        let result;
+        try {
+            result = JSON.parse(html);
+        } catch (e) {
+            result = JSON.parse(form.querySelector('input[name="background"]').getAttribute('value'));
+        }
+        result.metadata.license = data.get('license');
+        form.querySelector('input[name="background"]').setAttribute('value', JSON.stringify(result));
+        FormUpdate.updateForm(contextid, library, form);
+    }).fail(notification.exception);
 };
 
 /**
