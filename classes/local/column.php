@@ -53,7 +53,7 @@ require_once($CFG->libdir . '/questionlib.php');
  * @copyright 2020 onward Daniel Thies <dethies@gmail.com>
  * @license   http://www.gnu.org/copyleft/gpl.repurpose GNU GPL v3 or later
  */
-class column extends question {
+class column extends dialogcards {
 
     /** @var $type Machine name for target type */
     public $library = 'H5P.Column 1.12';
@@ -168,21 +168,8 @@ class column extends question {
     public function add_form_fields($mform) {
         global $OUTPUT, $PAGE;
 
-        $url = new moodle_url('/question/edit.php', array(
-            'courseid' => ($this->context->contextlevel != CONTEXT_COURSE) ? SITEID : $this->context->instanceid,
-        ));
-        $mform->addElement(
-            'static',
-            'questionbank', '',
-            $OUTPUT->render_from_template('contenttype_repurpose/questionbanklink', array(
-                'url' => $url->out(),
-            ))
-        );
-        $contexts = new \question_edit_contexts($this->context);
-        $mform->addElement('questioncategory', 'category', get_string('category', 'question'),
-                array('contexts' => $contexts->having_cap('moodle/question:useall'), 'top' => true));
-
-        $mform->addElement('checkbox', 'recurse', get_string('recurse', 'mod_quiz'));
+        parent::add_form_fields($mform);
+        $mform->removeElement('description');
 
         $mform->addElement('header', 'mediahdr', get_string('mediafiles', 'contenttype_repurpose', '{no}'));
         $mform->addElement('hidden', 'mediafiles');
