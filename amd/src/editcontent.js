@@ -47,6 +47,8 @@ export const init = (contextid, library) => {
                 editForm(contextid, library, form, button, modal);
             }
         }, true);
+
+        return true;
     }).fail(notification.exception);
 
     document.addEventListener('click', edit.bind(window, contextid, library));
