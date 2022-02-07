@@ -146,7 +146,7 @@ class question extends dialogcards {
      * @return void
      */
     public function definition_after_data($mform) {
-        global $DB, $OUTPUT;
+        global $CFG, $DB, $OUTPUT;
 
         $question = $mform->getElement('question');
         if ($question && $mform->getElementValue('category')) {
@@ -172,9 +172,15 @@ class question extends dialogcards {
 
             if (!empty($mform->getElementValue('question')) || $questions) {
                 $value = array_merge($mform->getElementValue('question') ?? array(), array_keys($questions));
-                $url = new moodle_url('/question/preview.php', array(
-                    'id' => reset($value),
-                ));
+                if (file_exists($CFG->dirroot . '/question/preview.php')) {
+                    $url = new moodle_url('/question/preview.php', array(
+                        'id' => reset($value),
+                    ));
+                } else {
+                    $url = new moodle_url('/question/bank/previewquestion/preview.php', array(
+                        'id' => reset($value),
+                    ));
+                }
                 $mform->removeElement('previewquestion');
                 $mform->insertElementBefore(
                     $mform->createElement('static', 'previewquestion', '', $OUTPUT->render_from_template(

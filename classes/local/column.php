@@ -174,6 +174,7 @@ class column extends dialogcards {
         $mform->addElement('header', 'mediahdr', get_string('mediafiles', 'contenttype_repurpose', '{no}'));
         $mform->addElement('hidden', 'mediafiles');
         $mform->addElement('button', 'addfile', get_string('addfile', 'contenttype_repurpose'));
+        $mform->addHelpButton('addfile', 'addfile', 'contenttype_repurpose');
         $mform->setType('mediafiles', PARAM_RAW);
         $mform->setDefault('mediafiles', '[]');
         $mform->addElement('hidden', 'draftid', 0);

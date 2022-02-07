@@ -1,3 +1,6 @@
+Release 1.3 Add new media editor interface to column and crossword,
+    and allow data to be saved instead of just creating the H5P.
+
 Release 1.2 Support creating crossword content type
 
 Release 1.1.1 Clean up js and behat testing

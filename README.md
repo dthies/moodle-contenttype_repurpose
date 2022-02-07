@@ -1,7 +1,7 @@
 # Repurpose resources conttentype plugin #
 
 Create interactive content from existing Moodle activities by importing
-media files and questions from the Moodle questiom bank into the content
+media files and questions from the Moodle question bank into the content
 bank as basic H5P content types.
 
 Currently this plugin supports four basic Moodle question types: Essay,
@@ -23,13 +23,15 @@ the question will now appear inside the content bank.
 
 ## Installation ##
 
-1. Install code in Moodle subdirectory _contentbank/contenttype/repurpose_
+1. Install code in Moodle sub-directory _contentbank/contenttype/repurpose_
 2. Go to admin settings page to complete installation
 3. Go to Site administration / Plugins / Content bank / Manage content types
    and make sure Repurpose resources plugin shows in the order you would like
-4. Edit roles as necessary to give user permission
-to access content bank and create content from repuposed resources.
-5. Install any needed content types either by running H5P schedule task
+4. In Repurpose repurpose setting choose whether to create H5P immediately or
+   also retain the data for editing.
+5. Edit roles as necessary to give user permission
+to access content bank and create content from Repurpose resources.
+6. Install any needed content types either by running H5P schedule task
 or  uploading them through the _H5P -> Manage content types_ settings.
 
 ## License ##

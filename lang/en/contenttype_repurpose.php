@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['pluginname'] = 'Repurpose resources';
 $string['addfile'] = 'Add file';
+$string['addfile_help'] = 'Add audio, image of video files that will be included as H5P content types';
 $string['backgroundimage'] = 'Background image';
 $string['description'] = 'Repurpose resources';
 $string['duration'] = 'Duration';
@@ -49,7 +50,6 @@ $string['interactions'] = 'Interactions';
 $string['interactionno'] = 'Interaction {$a}';
 $string['license'] = 'License';
 $string['license_help'] = 'Choose the license to specify for the content type';
-$string['mediafile'] = 'Media file {$a}';
 $string['mediafiles'] = 'Media files';
 $string['mediatitle'] = 'Media title';
 $string['missingsource'] = 'A video source must be supplied as a mp4, webm or ogv file or a YouTube link';
