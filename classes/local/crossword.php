@@ -65,8 +65,6 @@ class crossword extends dialogcards {
      * @return int The id of the edited or created content.
      */
     public function get_content(stdClass $data): stdClass {
-        global $DB;
-
         $content = parent::get_content($data);
 
         $content->taskDescription = $data->description;

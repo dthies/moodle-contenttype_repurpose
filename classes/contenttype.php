@@ -218,8 +218,6 @@ class contenttype extends \core_contentbank\contenttype {
      * @return boolean true if the content has been deleted; false otherwise.
      */
     public function delete_content(content $content): bool {
-        global $DB;
-
         $fs = get_file_storage();
 
         // First delete stored files for content.

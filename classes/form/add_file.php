@@ -53,13 +53,9 @@ class add_file extends moodleform {
      * Defines the form fields.
      */
     protected function definition() {
-        global $CFG, $DB, $OUTPUT;
+        global $CFG;
 
         $mform = $this->_form;
-
-        // Id of the content to edit (null if it's creation).
-        $id = $this->_customdata['id'] ?? null;
-        $contextid = $this->_customdata['contextid'];
 
         $library = $this->_customdata['library'] ?? optional_param('library', 'singlechoiceset', PARAM_TEXT);
 

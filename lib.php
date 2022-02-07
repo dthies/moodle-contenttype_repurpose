@@ -29,7 +29,7 @@
  * @return string HTML of form to display
  */
 function contenttype_repurpose_output_fragment_addfile(array $args): string {
-    global $OUTPUT, $USER;
+    global $USER;
 
     $context = $args['contextid'];
     $library = $args['library'];
@@ -48,7 +48,6 @@ function contenttype_repurpose_output_fragment_addfile(array $args): string {
     if ($data = json_decode($args['jsonformdata'])) {
         $fs = get_file_storage();
         if (!empty($data->mediafile)) {
-            $currentcontext = context::instance_by_id($context);
             $helper = new contenttype_repurpose\local\column(context::instance_by_id($context));
             foreach ($fs->get_area_files(context_user::instance($USER->id)->id, 'user', 'draft', $data->mediafile) as $file) {
                 if (!$file->is_directory()) {

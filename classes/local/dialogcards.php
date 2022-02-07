@@ -124,8 +124,6 @@ class dialogcards {
     public function get_content(stdClass $data): ?stdClass {
         global $DB;
 
-        $context = context::instance_by_id($data->contextid, MUST_EXIST);
-
         $category = $DB->get_record('question_categories', array('id' => preg_replace('/,.*/', '', $data->category)));
 
         $questions = get_questions_category($category, !empty($data->recurse));
@@ -246,7 +244,7 @@ class dialogcards {
      * @return void
      */
     public function definition_after_data($mform) {
-        global $DB, $OUTPUT;
+        global $DB;
 
         if (
             ($id = $mform->getElementValue('id'))
@@ -369,8 +367,6 @@ class dialogcards {
      * @return stdClass data to add to content file object
      */
     public function write_question(stdClass $question): ?stdClass {
-        global $CFG, $OUTPUT;
-
         if (!$writer = $this->get_writer($question)) {
             return null;
         }

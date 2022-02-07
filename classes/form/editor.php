@@ -356,7 +356,7 @@ class editor extends \contenttype_h5p\form\editor {
                     $h5p = \core_h5p\api::get_content_from_pathnamehash($file->get_pathnamehash());
                     if (!empty($h5p)) {
                         \core_h5p\local\library\autoloader::register();
-                        if ($h5plib = $DB->get_record('h5p_libraries', [
+                        if ($DB->get_record('h5p_libraries', [
                             'id' => $h5p->mainlibraryid,
                             'machinename' => $machinename,
                         ])) {
@@ -377,8 +377,6 @@ class editor extends \contenttype_h5p\form\editor {
      * @return string H5P license name
      */
     public static function get_h5p_license(string $shortname): string {
-        global $CFG;
-
         $shortnames = array(
             'C' => 'allrightsreserved',
             'CC BY' => 'cc',

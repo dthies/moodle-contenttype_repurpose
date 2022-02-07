@@ -58,21 +58,6 @@ class flashcards extends dialogcards {
     public $library = 'H5P.Flashcards 1.5';
 
     /**
-     * Modify or create an repurpose content from the form data.
-     *
-     * @param stdClass $data Form data to create or modify an repurpose content.
-     *
-     * @return int The id of the edited or created content.
-     */
-    public function get_content(stdClass $data): stdClass {
-        global $DB;
-
-        $content = parent::get_content($data);
-
-        return $content;
-    }
-
-    /**
      * Process data from an array of questions
      *
      * @param array $questions questions to process

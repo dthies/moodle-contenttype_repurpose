@@ -52,7 +52,6 @@ class behat_contenttype_repurpose extends behat_base {
      * @throws Exception with a meaningful error message if the specified page cannot be found.
      */
     protected function resolve_page_url(string $page): moodle_url {
-        global $COURSE;
         if (in_array(strtolower($page), array(
             'column',
             'question',
