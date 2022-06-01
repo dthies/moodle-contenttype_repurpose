@@ -27,6 +27,8 @@ namespace contenttype_repurpose\local;
 
 use stdClass;
 use context_user;
+use core_h5p\local\library\autoloader;
+use core_h5p\editor_ajax;
 
 /**
  * Question export helper for H5P Quiz content type
@@ -55,6 +57,13 @@ class qtype_multichoice {
         $this->files = array();
 
         $this->question = $question;
+
+        $contenttype = $this->get_contenttype();
+        if (!empty($contenttype)) {
+            $this->library = "{$contenttype->machine_name} {$contenttype->major_version}.{$contenttype->minor_version}";
+        } else {
+            $this->library = '';
+        }
     }
 
     /**
@@ -187,5 +196,25 @@ class qtype_multichoice {
         }
 
         return $name;
+    }
+
+    /**
+     * Get the availiable contenttype library for current machine name
+     *
+     * @return stdClass contenttype library info
+     */
+    public function get_contenttype(): ?stdClass {
+        // Get the H5P content types available.
+        autoloader::register();
+        $editorajax = new editor_ajax();
+        $h5pcontenttypes = $editorajax->getLatestLibraryVersions();
+
+        foreach ($h5pcontenttypes as $h5pcontenttype) {
+            if ($h5pcontenttype->machine_name == preg_replace('/ .*/', '', $this->library)) {
+                return $h5pcontenttype;
+            }
+        }
+
+        return null;
     }
 }
