@@ -53,7 +53,6 @@ require_once($CFG->libdir . '/questionlib.php');
  * @license   http://www.gnu.org/copyleft/gpl.repurpose GNU GPL v3 or later
  */
 class flashcards extends dialogcards {
-
     /** @var $type Machine name for target type */
     public $library = 'H5P.Flashcards 1.5';
 
@@ -74,15 +73,15 @@ class flashcards extends dialogcards {
                 $answers = array_column($question->options->answers, 'fraction', 'answer');
                 arsort($answers);
 
-                $card = (object) array(
+                $card = (object) [
                     'text' => strip_tags($question->questiontext, '<b><i><em><strong>'),
                     'answer' => array_keys($answers)[0],
                     'subContentId' => $this->create_subcontentid(),
-                );
+                ];
 
                 if ($files = $fs->get_area_files($this->context->id, 'question', 'questiontext', $question->id)) {
                     if (empty($this->files)) {
-                        $this->files = array();
+                        $this->files = [];
                     }
 
                     foreach ($files as $f) {
@@ -90,12 +89,12 @@ class flashcards extends dialogcards {
                             $imageinfo = $f->get_imageinfo();
                             $filename = $this->getname('image', $f->get_filename());
                             $this->files['content/images/' . $filename] = $f;
-                            $card->image = (object) array(
+                            $card->image = (object) [
                                 'path' => 'images/' .  $filename,
                                 'mimetype' => $imageinfo['mimetype'],
                                 'height' => $imageinfo['height'],
                                 'width' => $imageinfo['width'],
-                            );
+                            ];
                             break;
                         }
                     }

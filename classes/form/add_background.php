@@ -49,7 +49,6 @@ require_once($CFG->libdir . '/licenselib.php');
  * @license   http://www.gnu.org/copyleft/gpl.repurpose GNU GPL v3 or later
  */
 class add_background extends add_file {
-
     /**
      * Defines the form fields.
      */
@@ -76,14 +75,14 @@ class add_background extends add_file {
                 'mediafile',
                 get_string('newfile', 'contenttype_repurpose'),
                 null,
-                array(
+                [
                     'maxbytes' => 0,
-                    'accepted_types' => array(
+                    'accepted_types' => [
                         'gif',
                         'png',
                         'jpg',
-                    )
-                )
+                    ],
+                ]
             );
         }
     }

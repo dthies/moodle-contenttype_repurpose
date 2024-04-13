@@ -35,7 +35,6 @@ use context_user;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_truefalse extends qtype_multichoice {
-
     /** @var $type Maching name for target type */
     public $library = 'H5P.TrueFalse 1.6';
 

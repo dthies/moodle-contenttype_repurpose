@@ -35,7 +35,6 @@ use context_user;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_shortanswer extends qtype_multichoice {
-
     /** @var $type Machine name for target type */
     public $library = 'H5P.GuessTheAnswer 1.4';
 
@@ -62,7 +61,7 @@ class qtype_shortanswer extends qtype_multichoice {
         $this->library = 'H5P.Blanks 1.12';
         $this->type = 'fillblanks';
 
-        $answers = array();
+        $answers = [];
         foreach ($this->question->options->answers as $answer) {
             if ($answer->fraction == 1.0) {
                 $answers[] = $answer->answer;
@@ -70,7 +69,7 @@ class qtype_shortanswer extends qtype_multichoice {
         }
 
         $content->text = $this->question->questiontext;
-        $content->questions = array('*' . implode('/', $answers) . '*');
+        $content->questions = ['*' . implode('/', $answers) . '*'];
 
         return $content;
     }

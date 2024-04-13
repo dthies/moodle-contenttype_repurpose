@@ -37,7 +37,6 @@ use core_h5p\editor_ajax;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_multichoice {
-
     /** @var $files files to include with content */
     public $files = null;
 
@@ -47,6 +46,9 @@ class qtype_multichoice {
     /** @var $type option for target content */
     public $type = 'multiplechoice';
 
+    /** @var $question $question Question data */
+    public $question = null;
+
     /**
      * Constructor
      *
@@ -54,7 +56,7 @@ class qtype_multichoice {
      */
     public function __construct($question) {
 
-        $this->files = array();
+        $this->files = [];
 
         $this->question = $question;
 
@@ -76,18 +78,18 @@ class qtype_multichoice {
 
         $content->question = strip_tags($this->question->questiontext, '<b><i><em><strong>');
 
-        $answers = array();
+        $answers = [];
 
         foreach ($this->question->options->answers as $answer) {
-            $answers[] = (object) array(
+            $answers[] = (object) [
                 'text' => $answer->answer,
                 'correct' => $answer->fraction == 1 || (empty($this->question->single) && $answer->fraction > 0),
-                'tipAndFeedback' => (object) array(
+                'tipAndFeedback' => (object) [
                     'tip' => '',
                     'chosenFeedback' => $answer->feedback,
                     'notChosenFeedback' => '',
-                ),
-            );
+                ],
+            ];
         }
         $content->answers = $answers;
 
@@ -112,56 +114,55 @@ class qtype_multichoice {
                 $this->files['content/images/' . $filename] = $f;
                 $imageinfo = $f->get_imageinfo();
 
-                $content->media = (object) array(
-                    "type" => (object) array(
-                        "library" => "H5P.Image 1.1",
-                        "params" => (object) array(
+                $content->media = (object) [
+                    "type" => (object) [
+                        "params" => (object) [
                             "contentName" => "Image",
                             "alt" => '',
-                            "file" => (object) array(
+                            "file" => (object) [
                                 "path" => "images/" . $filename,
                                 "mime" => $imageinfo['mimetype'],
                                 "width" => $imageinfo['width'],
                                 "height" => $imageinfo['height'],
-                                "copyright" => (object) array("license" => "U"),
-                            ),
-                        ),
+                                "copyright" => (object) ["license" => "U"],
+                            ],
+                        ],
                         'library' => 'H5P.Image 1.1',
                         'subContentId' => $this->create_subcontentid(),
-                        'metadata' => (object) array(
+                        'metadata' => (object) [
                             'title' => '',
-                            'authors' => array(
-                            ),
+                            'authors' => [
+                            ],
                             'source' => '',
                             'license' => 'U',
                             'contentType' => 'Image',
-                        ),
-                    ),
-                );
+                        ],
+                    ],
+                ];
             }
         }
 
-        $content->overallFeedback = array();
+        $content->overallFeedback = [];
         if (!empty($this->question->options->incorrectfeedback)) {
-            $content->overallFeedback[] = (object) array(
+            $content->overallFeedback[] = (object) [
                 'from' => '0',
                 'to' => '0',
-                'feedback' => $this->question->options->incorrectfeedback
-            );
+                'feedback' => $this->question->options->incorrectfeedback,
+            ];
         }
         if (!empty($this->question->options->partiallycorrectfeedback)) {
-            $content->overallFeedback[] = (object) array(
+            $content->overallFeedback[] = (object) [
                 'from' => '1',
                 'to' => '99',
-                'feedback' => $this->question->options->partiallycorrectfeedback
-            );
+                'feedback' => $this->question->options->partiallycorrectfeedback,
+            ];
         }
         if (!empty($this->question->options->correctfeedback)) {
-            $content->overallFeedback[] = (object) array(
+            $content->overallFeedback[] = (object) [
                 'from' => '100',
                 'to' => '100',
                 'feedback' => $this->question->options->correctfeedback,
-            );
+            ];
         }
         return $this->process_question($content);
     }
@@ -171,7 +172,7 @@ class qtype_multichoice {
      * @return string
      */
     public function create_subcontentid() {
-        $string = array_map(function() {
+        $string = array_map(function () {
             return substr('0123456789abcdef', rand(0, 15), 1);
         }, array_fill(0, 31, 0));
         $string = implode($string);
@@ -189,7 +190,7 @@ class qtype_multichoice {
 
         $name = uniqid($field . '-');
 
-        $matches = array();
+        $matches = [];
         preg_match('/([a-z0-9]{1,})$/i', $originalname, $matches);
         if (isset($matches[0])) {
             $name .= '.' . $matches[0];

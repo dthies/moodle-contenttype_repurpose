@@ -49,7 +49,6 @@ require_once($CFG->dirroot . '/question/format/xml/format.php');
  * @license    http://www.gnu.org/copyleft/gpl.repurpose GNU GPL v3 or later
  */
 class contenttype extends \core_contentbank\contenttype {
-
     /**
      * Returns the HTML content to add to view.php visualizer.
      *
@@ -146,19 +145,19 @@ class contenttype extends \core_contentbank\contenttype {
 
         $types = [];
         if (
-            array_intersect(array(
+            array_intersect([
                 'H5P.MultiplueChoice',
                 'H5P.FillBlanks',
                 'H5P.Essay',
                 'H5P.TrueFalse',
                 'H5P.GuessAnswer',
-            ), $machinenames)
+            ], $machinenames)
         ) {
-            $types[] = (object) array(
+            $types[] = (object) [
                 'typename' => get_string('importquestion', 'contenttype_repurpose'),
                 'typeeditorparams' => 'library=question',
                 'typeicon' => $OUTPUT->image_url('e/question', 'core'),
-            );
+            ];
         }
         $h5pfilestorage = new file_storage();
         foreach ($h5pcontenttypes as $h5pcontenttype) {
@@ -170,39 +169,39 @@ class contenttype extends \core_contentbank\contenttype {
             );
             switch ($h5pcontenttype->machine_name) {
                 case 'H5P.Column':
-                    $types[] = (object) array(
+                    $types[] = (object) [
                         'typename' => get_string('importcolumn', 'contenttype_repurpose'),
                         'typeeditorparams' => 'library=column',
                         'typeicon' => $typeicon,
-                    );
+                    ];
                     break;
                 case 'H5P.Crossword':
-                    $types[] = (object) array(
+                    $types[] = (object) [
                         'typename' => get_string('importcrossword', 'contenttype_repurpose'),
                         'typeeditorparams' => 'library=crossword',
                         'typeicon' => $typeicon,
-                    );
+                    ];
                     break;
                 case 'H5P.Dialogcards':
-                    $types[] = (object) array(
+                    $types[] = (object) [
                         'typename' => get_string('importdialogcards', 'contenttype_repurpose'),
                         'typeeditorparams' => 'library=dialogcards',
                         'typeicon' => $typeicon,
-                    );
+                    ];
                     break;
                 case 'H5P.Flashcards':
-                    $types[] = (object) array(
+                    $types[] = (object) [
                         'typename' => get_string('importflashcards', 'contenttype_repurpose'),
                         'typeeditorparams' => 'library=flashcards',
                         'typeicon' => $typeicon,
-                    );
+                    ];
                     break;
                 case 'H5P.SingleChoiceSet':
-                    $types[] = (object) array(
+                    $types[] = (object) [
                         'typename' => get_string('importsinglechoiceset', 'contenttype_repurpose'),
                         'typeeditorparams' => 'library=singlechoiceset',
                         'typeicon' => $typeicon,
-                    );
+                    ];
                     break;
             }
         };
@@ -226,7 +225,8 @@ class contenttype extends \core_contentbank\contenttype {
             'contentype_repurpose',
             'content',
             $content->get_id(),
-            'id DESC', false
+            'id DESC',
+            false
         );
         foreach ($files as $file) {
             $file->delete();

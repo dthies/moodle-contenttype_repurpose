@@ -27,7 +27,11 @@ defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
     if ($ADMIN->fulltree) {
-        $settings->add(new admin_setting_configcheckbox('contenttype_repurpose/saveash5p',
-            get_string('saveash5p', 'contenttype_repurpose'), get_string('saveash5p_help', 'contenttype_repurpose'), 1));
+        $settings->add(new admin_setting_configcheckbox(
+            'contenttype_repurpose/saveash5p',
+            get_string('saveash5p', 'contenttype_repurpose'),
+            get_string('saveash5p_help', 'contenttype_repurpose'),
+            1
+        ));
     }
 }

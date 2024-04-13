@@ -27,9 +27,9 @@
 
 require_once(__DIR__ . '/../../../../../lib/behat/behat_base.php');
 
-use Behat\Gherkin\Node\TableNode as TableNode;
+use Behat\Gherkin\Node\TableNode;
 
-use Behat\Mink\Exception\ExpectationException as ExpectationException;
+use Behat\Mink\Exception\ExpectationException;
 
 /**
  * Steps definitions related to conntenttype_repurpose.
@@ -38,7 +38,6 @@ use Behat\Mink\Exception\ExpectationException as ExpectationException;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class behat_contenttype_repurpose extends behat_base {
-
     /**
      * Convert page names to URLs for steps like 'When I am on the "[page name]" page'.
      *
@@ -52,15 +51,17 @@ class behat_contenttype_repurpose extends behat_base {
      * @throws Exception with a meaningful error message if the specified page cannot be found.
      */
     protected function resolve_page_url(string $page): moodle_url {
-        if (in_array(strtolower($page), array(
+        if (
+            in_array(strtolower($page), [
             'column',
             'question',
-        ))) {
-            return  new moodle_url('/contentbank/edit.php', array(
+            ])
+        ) {
+            return  new moodle_url('/contentbank/edit.php', [
                 'contextid' => context_system::instance()->id,
                 'library' => str_replace('contenttype_repurpose ', '', strtolower($page)),
                 'plugin' => 'repurpose',
-            ));
+            ]);
         }
         throw new Exception('Unrecognised content type repurpose page type "' . $page . '."');
     }
@@ -79,15 +80,17 @@ class behat_contenttype_repurpose extends behat_base {
      * @throws Exception with a meaningful error message if the specified page cannot be found.
      */
     protected function resolve_page_instance_url(string $type, string $identifier): moodle_url {
-        if (in_array(strtolower($type), array(
+        if (
+            in_array(strtolower($type), [
             'column',
             'question',
-        ))) {
-            return  new moodle_url('/contentbank/edit.php', array(
+            ])
+        ) {
+            return  new moodle_url('/contentbank/edit.php', [
                 'contextid' => context_course::instance($this->get_course_id($identifier))->id,
                 'library' => strtolower($type),
                 'plugin' => 'repurpose',
-            ));
+            ]);
         }
         throw new Exception('Unrecognised content type repurpose page type "' . $type . '."');
     }

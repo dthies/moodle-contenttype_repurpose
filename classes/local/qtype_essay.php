@@ -35,7 +35,6 @@ use context_user;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_essay extends qtype_multichoice {
-
     /** @var $type Machine name for target type */
     public $library = 'H5P.Essay 1.2';
 
@@ -49,10 +48,10 @@ class qtype_essay extends qtype_multichoice {
 
         $content->taskDescription = $this->question->questiontext;
 
-        $content->solution = (object) array(
+        $content->solution = (object) [
             'intro' => '',
             'sample' => $this->question->generalfeedback,
-        );
+        ];
         $content->placeholderText = $this->question->options->responsetemplate;
 
         return $content;

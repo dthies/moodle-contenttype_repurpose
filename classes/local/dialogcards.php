@@ -55,7 +55,6 @@ require_once($CFG->libdir . '/questionlib.php');
  * @license   http://www.gnu.org/copyleft/gpl.repurpose GNU GPL v3 or later
  */
 class dialogcards {
-
     /** @var $context Current course context for content bank */
     public $context = null;
 
@@ -64,6 +63,9 @@ class dialogcards {
 
     /** @var $type Machine name for target type */
     public $library = 'H5P.Dialogcards';
+
+    /** @var $mediafiles Image files to be added */
+    public $mediafiles = null;
 
     /**
      * Constructor
@@ -93,23 +95,28 @@ class dialogcards {
         $mform->addElement('text', 'description', $label);
         $mform->setType('description', PARAM_TEXT);
 
-        $url = new moodle_url('/question/edit.php', array(
+        $url = new moodle_url('/question/edit.php', [
             'courseid' => ($this->context->contextlevel != CONTEXT_COURSE) ? SITEID : $this->context->instanceid,
-        ));
+        ]);
         $mform->addElement(
             'static',
-            'questionbank', '',
-            $OUTPUT->render_from_template('contenttype_repurpose/questionbanklink', array(
+            'questionbank',
+            '',
+            $OUTPUT->render_from_template('contenttype_repurpose/questionbanklink', [
                 'url' => $url->out(),
-            ))
+            ])
         );
         if (class_exists('\\core_question\\local\\bank\\question_edit_contexts')) {
             $contexts = new \core_question\local\bank\question_edit_contexts($this->context);
         } else {
             $contexts = new \question_edit_contexts($this->context);
         }
-        $mform->addElement('questioncategory', 'category', get_string('category', 'question'),
-                array('contexts' => $contexts->having_cap('moodle/question:useall'), 'top' => true));
+        $mform->addElement(
+            'questioncategory',
+            'category',
+            get_string('category', 'question'),
+            ['contexts' => $contexts->having_cap('moodle/question:useall'), 'top' => true]
+        );
 
         $mform->addElement('checkbox', 'recurse', get_string('recurse', 'mod_quiz'));
     }
@@ -124,7 +131,7 @@ class dialogcards {
     public function get_content(stdClass $data): ?stdClass {
         global $DB;
 
-        $category = $DB->get_record('question_categories', array('id' => preg_replace('/,.*/', '', $data->category)));
+        $category = $DB->get_record('question_categories', ['id' => preg_replace('/,.*/', '', $data->category)]);
 
         $questions = get_questions_category($category, !empty($data->recurse));
 
@@ -172,15 +179,15 @@ class dialogcards {
                 $answers = array_column($question->options->answers, 'fraction', 'answer');
                 arsort($answers);
 
-                $dialog = (object) array(
+                $dialog = (object) [
                     'text' => strip_tags($question->questiontext, '<b><i><em><strong>'),
                     'answer' => array_keys($answers)[0],
                     'subContentId' => $this->create_subcontentid(),
-                );
+                ];
 
                 if ($files = $fs->get_area_files($this->context->id, 'question', 'questiontext', $question->id)) {
                     if (empty($this->files)) {
-                        $this->files = array();
+                        $this->files = [];
                     }
 
                     foreach ($files as $f) {
@@ -188,12 +195,12 @@ class dialogcards {
                             $imageinfo = $f->get_imageinfo();
                             $filename = $this->getname('image', $f->get_filename());
                             $this->files['content/images/' . $filename] = $f;
-                            $dialog->image = (object) array(
+                            $dialog->image = (object) [
                                 'path' => 'images/' .  $filename,
                                 'mimetype' => $imageinfo['mimetype'],
                                 'height' => $imageinfo['height'],
                                 'width' => $imageinfo['width'],
-                            );
+                            ];
                             break;
                         }
                     }
@@ -210,7 +217,7 @@ class dialogcards {
      * @return string
      */
     public function create_subcontentid(): string {
-        $string = array_map(function() {
+        $string = array_map(function () {
             return substr('0123456789abcdef', rand(0, 15), 1);
         }, array_fill(0, 31, 0));
         $string = implode($string);
@@ -228,7 +235,7 @@ class dialogcards {
 
         $name = uniqid($field . '-');
 
-        $matches = array();
+        $matches = [];
         preg_match('/([a-z0-9]{1,})$/i', $originalname, $matches);
         if (isset($matches[0])) {
             $name .= '.' . $matches[0];
@@ -248,7 +255,7 @@ class dialogcards {
 
         if (
             ($id = $mform->getElementValue('id'))
-            && $record = $DB->get_record('contentbank_content', array('id' => $id))
+            && $record = $DB->get_record('contentbank_content', ['id' => $id])
         ) {
             $content = new \contenttype_repurpose\content($record);
             $configdata = json_decode($content->get_configdata());
@@ -271,17 +278,19 @@ class dialogcards {
     public function validation($data, $files) {
         global $DB;
 
-        $errors = array();
-        $category = $DB->get_record('question_categories', array(
+        $errors = [];
+        $category = $DB->get_record('question_categories', [
             'id' => preg_replace('/,.*/', '', $data['category']),
-        ));
+        ]);
 
         $questions = get_questions_category($category, !empty($data->recurse));
-        if (empty(array_filter($questions, function($question) use ($category, $data) {
-            return empty($question->parent)
+        if (
+            empty(array_filter($questions, function ($question) use ($category, $data) {
+                return empty($question->parent)
                 && ($question->qtype === 'shortanswer')
                 && (!empty($data['recurse']) || $question->category == $category->id);
-        }))) {
+            }))
+        ) {
             $errors['category'] = get_string('noquestionsselected', 'contenttype_repurpose');
         }
 
@@ -325,7 +334,7 @@ class dialogcards {
      * @return stdClass
      */
     public function set_data($mform, $configdata): void {
-        foreach ([
+        $fields = [
             'name',
             'license',
             'description',
@@ -333,7 +342,8 @@ class dialogcards {
             'mediafiles',
             'question',
             'recurse',
-        ] as $field) {
+        ];
+        foreach ($fields as $field) {
             if (!empty($configdata->$field)) {
                 $mform->setDefault($field, $configdata->$field);
             }
@@ -349,7 +359,7 @@ class dialogcards {
     public function get_writer($question) {
         $question->contextid = $this->context->id;
         if (empty($question->parent)) {
-            foreach (array('repurposeplus', 'repurpose') as $plugin) {
+            foreach (['repurposeplus', 'repurpose'] as $plugin) {
                 $writerclass = "contenttype_$plugin\\local\\qtype_" . $question->qtype;
 
                 if (class_exists($writerclass) && empty($question->parent)) {
@@ -372,22 +382,22 @@ class dialogcards {
         }
 
         $content = new stdClass();
-        $content = (object) array(
+        $content = (object) [
             'params' => $writer->process($content),
             'subContentId' => $writer->create_subcontentid(),
             'library' => $writer->library,
-            'metadata' => (object) array(
+            'metadata' => (object) [
                 'license' => 'U',
                 'authors' => [],
                 'changes' => [],
                 'title' => $question->name,
                 'extraTitle' => $question->name,
-            ),
-        );
+            ],
+        ];
 
         if (!empty($writer->files)) {
             if (empty($this->files)) {
-                $this->files = array();
+                $this->files = [];
             }
             $this->files = $this->files + $writer->files;
         }

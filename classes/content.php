@@ -43,7 +43,6 @@ use stored_file;
  * @license    http://www.gnu.org/copyleft/gpl.repurpose GNU GPL v3 or later
  */
 class content extends \core_contentbank\content {
-
     /**
      * Save the public file
      *

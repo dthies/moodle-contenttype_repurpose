@@ -55,7 +55,6 @@ require_once($CFG->libdir . '/questionlib.php');
  * @license   http://www.gnu.org/copyleft/gpl.repurpose GNU GPL v3 or later
  */
 class question extends dialogcards {
-
     /** @var $type Machine name for target type */
     public $library = '';
 
@@ -71,7 +70,7 @@ class question extends dialogcards {
 
         $context = context::instance_by_id($data->contextid, MUST_EXIST);
 
-        $category = $DB->get_record('question_categories', array('id' => preg_replace('/,.*/', '', $data->category)));
+        $category = $DB->get_record('question_categories', ['id' => preg_replace('/,.*/', '', $data->category)]);
         $questions = get_questions_category($category, true);
 
         foreach ($questions as $question) {
@@ -96,10 +95,10 @@ class question extends dialogcards {
         }');
 
         foreach ($questions as $question) {
-            $content->content[] = (object) array(
+            $content->content[] = (object) [
                 'content' => $this->write_question($question),
                 'useSeparator' => 'auto',
-            );
+            ];
         }
 
         return $content;
@@ -113,14 +112,14 @@ class question extends dialogcards {
     public function add_form_fields($mform) {
         global $DB, $PAGE;
 
-        $PAGE->requires->js_call_amd('contenttype_repurpose/formupdate', 'init', array($this->context->id, 'question'));
+        $PAGE->requires->js_call_amd('contenttype_repurpose/formupdate', 'init', [$this->context->id, 'question']);
 
         parent::add_form_fields($mform);
         $mform->removeElement('description');
 
         // Add question selector.
-        $questions = array();
-        $category = $DB->get_record('question_categories', array('contextid' => $this->context->id, 'parent' => 0));
+        $questions = [];
+        $category = $DB->get_record('question_categories', ['contextid' => $this->context->id, 'parent' => 0]);
         foreach (get_questions_category($category, true) as $question) {
             if (
                 question_has_capability_on($question, 'use') &&
@@ -136,7 +135,6 @@ class question extends dialogcards {
         $mform->addElement('static', 'previewquestion', '', 'no question');
         $mform->addHelpButton('question', 'question', 'contenttype_repurpose');
         $mform->addHelpButton('previewquestion', 'previewquestion', 'contenttype_repurpose');
-
     }
 
     /**
@@ -150,10 +148,10 @@ class question extends dialogcards {
 
         $question = $mform->getElement('question');
         if ($question && $mform->getElementValue('category')) {
-            list($category, $contextid) = explode(',', reset($mform->getElementValue('category')));
+            [$category, $contextid] = explode(',', reset($mform->getElementValue('category')));
             $category = reset($mform->getElementValue('category'));
-            $category = $DB->get_record('question_categories', array('id' => preg_replace('/,.*/', '', $category)));
-            $questions = array();
+            $category = $DB->get_record('question_categories', ['id' => preg_replace('/,.*/', '', $category)]);
+            $questions = [];
             foreach (get_questions_category($category, true) as $question) {
                 if (
                     question_has_capability_on($question, 'use') &&
@@ -171,21 +169,21 @@ class question extends dialogcards {
             $mform->addRule('question', null, 'required', null, 'server');
 
             if (!empty($mform->getElementValue('question')) || $questions) {
-                $value = array_merge($mform->getElementValue('question') ?? array(), array_keys($questions));
+                $value = array_merge($mform->getElementValue('question') ?? [], array_keys($questions));
                 if (file_exists($CFG->dirroot . '/question/preview.php')) {
-                    $url = new moodle_url('/question/preview.php', array(
+                    $url = new moodle_url('/question/preview.php', [
                         'id' => reset($value),
-                    ));
+                    ]);
                 } else {
-                    $url = new moodle_url('/question/bank/previewquestion/preview.php', array(
+                    $url = new moodle_url('/question/bank/previewquestion/preview.php', [
                         'id' => reset($value),
-                    ));
+                    ]);
                 }
                 $mform->removeElement('previewquestion');
                 $mform->insertElementBefore(
                     $mform->createElement('static', 'previewquestion', '', $OUTPUT->render_from_template(
                         'contenttype_repurpose/previewquestion',
-                        array('url' => $url->out())
+                        ['url' => $url->out()]
                     )),
                     'question'
                 );
@@ -199,7 +197,6 @@ class question extends dialogcards {
         } else {
             parent::definition_after_data($mform);
         }
-
     }
 
     /**
@@ -211,7 +208,7 @@ class question extends dialogcards {
      *         or an empty array if everything is OK (true allowed for backwards compatibility too).
      */
     public function validation($data, $files) {
-        $errors = array();
+        $errors = [];
         if (empty($data['submitbutton'])) {
             $errors['submitbutton'] = 'no submit';
         }

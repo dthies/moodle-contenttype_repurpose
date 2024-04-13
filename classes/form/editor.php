@@ -54,9 +54,14 @@ require_once($CFG->libdir . '/licenselib.php');
  * @license   http://www.gnu.org/copyleft/gpl.repurpose GNU GPL v3 or later
  */
 class editor extends \contenttype_h5p\form\editor {
-
     /** @var $contents Array of content types available to use as bassis */
     public $contents = null;
+
+    /** @var $h5peditor H5P editor binding */
+    protected $h5peditor = null;
+
+    /** @var $helper H5P helper binding */
+    protected $helper = null;
 
     /**
      * Defines the form fields.
@@ -83,10 +88,10 @@ class editor extends \contenttype_h5p\form\editor {
             $library = $configdata->library;
         }
 
-        $mform->addElement('html', $OUTPUT->render_from_template('contenttype_repurpose/tutorial', array(
+        $mform->addElement('html', $OUTPUT->render_from_template('contenttype_repurpose/tutorial', [
             'library' => $library,
             'type' => get_string('import' . $library, 'contenttype_repurpose'),
-        )));
+        ]));
 
         // Content name.
         $mform->addElement('text', 'name', get_string('name'));
@@ -109,11 +114,19 @@ class editor extends \contenttype_h5p\form\editor {
 
         $this->helper->add_form_fields($mform);
 
-        $this->helper->repeatoptions = $this->helper->repeatoptions ?? array();
+        $repeatoptions = $repeatoptions ?? [];
 
-        if (!empty($this->helper->repeatelements)) {
-            $this->repeat_elements($this->helper->repeatelements, 3,
-                $this->helper->repeatoptions, 'option_repeats', 'option_add_fields', 3, null, true);
+        if (!empty($repeatelements)) {
+            $this->repeat_elements(
+                $repeatelements,
+                3,
+                $repeatoptions,
+                'option_repeats',
+                'option_add_fields',
+                3,
+                null,
+                true
+            );
         }
 
         $this->add_action_buttons();
@@ -170,19 +183,19 @@ class editor extends \contenttype_h5p\form\editor {
         // If name missing use default.
         if (empty($data->name)) {
             if (isset($data->question)) {
-                $data->name = $DB->get_field('question', 'name', array('id' => $data->question));
+                $data->name = $DB->get_field('question', 'name', ['id' => $data->question]);
             } else if (isset($data->category)) {
-                $data->name = $DB->get_field('question_categories', 'name', array(
-                    'id' => explode(',', $data->category)[0]
-                ));
+                $data->name = $DB->get_field('question_categories', 'name', [
+                    'id' => explode(',', $data->category)[0],
+                ]);
             }
         }
 
         $h5pparams->params = $h5pparams->params ?? null;
-        $h5pparams->metadata = $h5pparams->metadata ?? new stdClass;
+        $h5pparams->metadata = $h5pparams->metadata ?? new stdClass();
         $h5pparams->metadata->title = $data->name;
         $h5pparams->metadata->license = self::get_h5p_license($data->license);
-        $content = (object) array(
+        $content = (object) [
             'library' => $this->helper->library,
             'license' => self::get_h5p_license($data->license),
             'h5plibrary' => $this->helper->library,
@@ -190,7 +203,7 @@ class editor extends \contenttype_h5p\form\editor {
             'contextid' => $context->id,
             'plugin' => 'h5p',
             'h5paction' => 'create',
-        );
+        ];
 
         $h5pcontentid = $this->h5peditor->save_content($content);
 
@@ -215,8 +228,15 @@ class editor extends \contenttype_h5p\form\editor {
                 $itemid = file_get_unused_draft_itemid();
                 $filename = $file->get_filename();
                 $file->delete();
-                $file = $packer->archive_to_storage($files, context_user::instance($USER->id)->id,
-                    'user', 'draft', $itemid,  '/', $filename);
+                $file = $packer->archive_to_storage(
+                    $files,
+                    context_user::instance($USER->id)->id,
+                    'user',
+                    'draft',
+                    $itemid,
+                    '/',
+                    $filename
+                );
             }
         }
         $file->set_license($data->license);
@@ -316,7 +336,7 @@ class editor extends \contenttype_h5p\form\editor {
      * @return string
      */
     public function create_subcontentid(): string {
-        $string = array_map(function() {
+        $string = array_map(function () {
             return substr('0123456789abcdef', rand(0, 15), 1);
         }, array_fill(0, 31, 0));
         $string = implode($string);
@@ -344,22 +364,26 @@ class editor extends \contenttype_h5p\form\editor {
         global $DB, $PAGE;
         $mform = $this->_form;
         $search = '';
-        $options = array('' => '');
+        $options = ['' => ''];
         $contentbank = new \core_contentbank\contentbank();
         // Return all content bank content that matches the search criteria and can be viewed/accessed by the user.
         $contents = $contentbank->search_contents($search);
         foreach ($contents as $content) {
-            if (($content->get_content_type() == 'contenttype_h5p') &&
-                ($content->get_contextid() == $this->helper->context->id)) {
+            if (
+                ($content->get_content_type() == 'contenttype_h5p') &&
+                ($content->get_contextid() == $this->helper->context->id)
+            ) {
                 $file = $content->get_file();
                 if (!empty($file)) {
                     $h5p = \core_h5p\api::get_content_from_pathnamehash($file->get_pathnamehash());
                     if (!empty($h5p)) {
                         \core_h5p\local\library\autoloader::register();
-                        if ($DB->get_record('h5p_libraries', [
+                        if (
+                            $DB->get_record('h5p_libraries', [
                             'id' => $h5p->mainlibraryid,
                             'machinename' => $machinename,
-                        ])) {
+                            ])
+                        ) {
                             $options[$content->get_id()] = $content->get_name();
                             $this->contents[$content->get_id()] = $content;
                         }
@@ -367,7 +391,7 @@ class editor extends \contenttype_h5p\form\editor {
                 }
             }
         }
-        $mform->addElement('select', 'contenttype', 'contenttype', $options, array('data-action' => 'update'));
+        $mform->addElement('select', 'contenttype', 'contenttype', $options, ['data-action' => 'update']);
     }
 
     /**
@@ -377,7 +401,7 @@ class editor extends \contenttype_h5p\form\editor {
      * @return string H5P license name
      */
     public static function get_h5p_license(string $shortname): string {
-        $shortnames = array(
+        $shortnames = [
             'C' => 'allrightsreserved',
             'CC BY' => 'cc',
             'CC BY-NC' => 'cc-nc',
@@ -387,7 +411,7 @@ class editor extends \contenttype_h5p\form\editor {
             'CC BY-SA' => 'cc-sa',
             'PD' => 'public',
             'U' => 'unknown',
-        );
+        ];
         if (in_array($shortname, $shortnames)) {
             return array_flip($shortnames)[$shortname];
         }

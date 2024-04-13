@@ -54,7 +54,6 @@ require_once($CFG->libdir . '/questionlib.php');
  * @license   http://www.gnu.org/copyleft/gpl.repurpose GNU GPL v3 or later
  */
 class column extends dialogcards {
-
     /** @var $type Machine name for target type */
     public $library = 'H5P.Column 1.12';
 
@@ -71,10 +70,10 @@ class column extends dialogcards {
 
         foreach ($questions as $question) {
             $question->type = 'fillblanks';
-            $content->content[] = (object) array(
+            $content->content[] = (object) [
                 'content' => $this->write_question($question),
                 'useSeparator' => 'auto',
-            );
+            ];
         }
 
         return $content;
@@ -92,7 +91,7 @@ class column extends dialogcards {
 
         $context = context::instance_by_id($data->contextid, MUST_EXIST);
 
-        $category = $DB->get_record('question_categories', array('id' => preg_replace('/,.*/', '', $data->category)));
+        $category = $DB->get_record('question_categories', ['id' => preg_replace('/,.*/', '', $data->category)]);
 
         $questions = get_questions_category($category, !empty($data->recurse));
 
@@ -113,10 +112,10 @@ class column extends dialogcards {
         $this->mediafiles = $this->mediafiles ?? [];
         $this->mediafiles = array_merge(json_decode($data->mediafiles) ?? [], $this->mediafiles);
         foreach ($this->mediafiles as $key => $mediafile) {
-            $content->content[] = (object) array(
+            $content->content[] = (object) [
                 'content' => $mediafile,
                 'useSeparator' => 'auto',
-            );
+            ];
         }
 
         return $content;
@@ -133,17 +132,19 @@ class column extends dialogcards {
     public function validation($data, $files) {
         global $DB, $USER;
 
-        $errors = array();
-        $category = $DB->get_record('question_categories', array(
+        $errors = [];
+        $category = $DB->get_record('question_categories', [
             'id' => preg_replace('/,.*/', '', $data['category']),
-        ));
+        ]);
 
         $questions = get_questions_category($category, !empty($data->recurse));
-        if (empty(array_filter($questions, function($question) use ($category, $data) {
-            return empty($question->parent)
+        if (
+            empty(array_filter($questions, function ($question) use ($category, $data) {
+                return empty($question->parent)
                 && $this->get_writer($question)
                 && (key_exists('recurse', $data) || $question->category == $category->id);
-        }))) {
+            }))
+        ) {
             $fs = get_file_storage();
             $context = context_user::instance($USER->id);
             $count = 0;
@@ -179,7 +180,6 @@ class column extends dialogcards {
         $mform->setDefault('mediafiles', '[]');
         $mform->addElement('hidden', 'draftid', 0);
         $mform->setType('draftid', PARAM_INT);
-
     }
 
     /**
@@ -211,13 +211,13 @@ class column extends dialogcards {
               "title": "Untitled Audio"
             }
         }');
-        $content->params->files = array(
-            (object) array(
+        $content->params->files = [
+            (object) [
                 'license' => 'U',
                 'path' => 'audios/' . $filename,
                 'mime' => $file->get_mimetype(),
-            )
-        );
+            ],
+        ];
         $content->metadata->title = $title ?? 'audio';
         $content->subContentId = $this->create_subcontentid();
 
@@ -249,14 +249,14 @@ class column extends dialogcards {
             }
         }');
         $imageinfo = $file->get_imageinfo();
-        $content->params->file = (object) array(
+        $content->params->file = (object) [
             'license' => 'U',
             'path' => 'images/' . $filename,
             'height' => $imageinfo['height'],
             'width' => $imageinfo['width'],
             'mime' => $imageinfo['mimetype'],
             'title' => $title ?: $file->get_filename(),
-        );
+        ];
         $content->params->alt = $title ?: 'image';
         $content->metadata->title = $title ?: 'image';
         $content->subContentId = $this->create_subcontentid();
@@ -287,14 +287,14 @@ class column extends dialogcards {
               "title": "Untitled Video"
             }
         }');
-        $content->params->sources = array(
-            (object) array(
+        $content->params->sources = [
+            (object) [
                 'license' => 'U',
                 'path' => 'videos/' . $filename,
                 'mime' => $file->get_mimetype(),
                 'title' => $filename,
-            )
-        );
+            ],
+        ];
         $content->metadata->title = $title ?? 'video';
         $content->subContentId = $this->create_subcontentid();
 
@@ -314,7 +314,7 @@ class column extends dialogcards {
         if (
             !$mform->getElementValue('draftid' ?? 0)
             && ($id = $mform->getElementValue('id'))
-            && $record = $DB->get_record('contentbank_content', array('id' => $id))
+            && $record = $DB->get_record('contentbank_content', ['id' => $id])
         ) {
             $content = new \contenttype_repurpose\content($record);
             $configdata = json_decode($content->get_configdata());
@@ -334,7 +334,7 @@ class column extends dialogcards {
             (!$draftid = $mform->getElementValue('draftid') ?? 0)
             || optional_param('library', '', PARAM_TEXT)
         ) {
-            $PAGE->requires->js_call_amd('contenttype_repurpose/editcontent', 'init', array($this->context->id, 'column'));
+            $PAGE->requires->js_call_amd('contenttype_repurpose/editcontent', 'init', [$this->context->id, 'column']);
         }
 
         $fs = get_file_storage();
@@ -382,8 +382,8 @@ class column extends dialogcards {
                 'content',
                 $id ?? null,
                 ['subdirs' => true],
-                $OUTPUT->render_from_template('contenttype_repurpose/media', ['media' => $mediafiles]))
-            ),
+                $OUTPUT->render_from_template('contenttype_repurpose/media', ['media' => $mediafiles])
+            )),
             'mediafiles'
         );
         $mform->setDefault('draftid', $draftid);

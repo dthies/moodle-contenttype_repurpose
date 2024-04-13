@@ -52,7 +52,6 @@ require_once($CFG->libdir . '/questionlib.php');
  * @license   http://www.gnu.org/copyleft/gpl.repurpose GNU GPL v3 or later
  */
 class singlechoiceset extends dialogcards {
-
     /** @var $type Machine name for target type */
     public $library = 'H5P.SingleChoiceSet 1.11';
 
@@ -88,15 +87,14 @@ class singlechoiceset extends dialogcards {
         }');
         foreach ($questions as $question) {
             if ($question->qtype == 'multichoice' && $question->options->single) {
-
                 $answers = array_column($question->options->answers, 'fraction', 'answer');
                 arsort($answers);
 
-                $content->choices[] = (object) array(
+                $content->choices[] = (object) [
                     'question' => strip_tags($question->questiontext, '<b><i><em><strong>'),
                     'answers' => array_keys($answers),
                     'subContentId' => $this->create_subcontentid(),
-                );
+                ];
             }
         }
         return $content;
@@ -113,18 +111,20 @@ class singlechoiceset extends dialogcards {
     public function validation($data, $files) {
         global $DB;
 
-        $errors = array();
-        $category = $DB->get_record('question_categories', array(
+        $errors = [];
+        $category = $DB->get_record('question_categories', [
             'id' => preg_replace('/,.*/', '', $data['category']),
-        ));
+        ]);
 
         $questions = get_questions_category($category, !empty($data->recurse));
-        if (empty(array_filter($questions, function($question) use ($category, $data) {
-            return empty($question->parent)
+        if (
+            empty(array_filter($questions, function ($question) use ($category, $data) {
+                return empty($question->parent)
                 && ($question->qtype === 'multichoice')
                 && !empty($question->options->single)
                 && (!empty($data['recurse']) || $question->category == $category->id);
-        }))) {
+            }))
+        ) {
             $errors['category'] = get_string('noquestionsselected', 'contenttype_repurpose');
         }
 

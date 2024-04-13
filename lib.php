@@ -39,11 +39,11 @@ function contenttype_repurpose_output_fragment_addfile(array $args): string {
     } else {
         $formclass = '\\contenttype_repurpose\\form\\add_file';
     }
-    $form = new $formclass('#', array(
+    $form = new $formclass('#', [
         'contextid' => $context,
         'library' => $library,
         'plugin' => 'contenttype_repurpose',
-    ));
+    ]);
 
     if ($data = json_decode($args['jsonformdata'])) {
         $fs = get_file_storage();
@@ -94,7 +94,6 @@ function contenttype_repurpose_output_fragment_addfile(array $args): string {
             }
         }
         $form->set_data($data);
-
     }
     return '<div>' . $form->render() . '</div>';
 }
@@ -109,19 +108,19 @@ function contenttype_repurpose_output_fragment_formupdate(array $args): string {
     $context = $args['contextid'];
     $library = $args['library'];
 
-    $url = new moodle_url('/contentbank/edit.php', array(
+    $url = new moodle_url('/contentbank/edit.php', [
         'contextid' => $context,
         'library' => $library,
         'plugin' => 'repurpose',
-    ));
+    ]);
 
-    $editor = new \contenttype_repurpose\form\editor($url, array(
+    $editor = new \contenttype_repurpose\form\editor($url, [
         'contextid' => $context,
         'id' => null,
         'library' => $library,
         'plugin' => 'contenttype_repurpose',
         'update' => true,
-    ));
+    ]);
 
     if ($data = json_decode($args['jsonformdata'])) {
         $editor->set_data($data);
@@ -142,7 +141,7 @@ function contenttype_repurpose_output_fragment_formupdate(array $args): string {
  * @param array $options additional options affecting the file serving
  * @return bool false if the file not found, just send the file otherwise and do not return anything
  */
-function contenttype_repurpose_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
+function contenttype_repurpose_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = []) {
     // Check the contextlevel is as expected - if your plugin is a block, this becomes CONTEXT_BLOCK, etc.
     if ($context->contextlevel > CONTEXT_COURSE) {
         return false;
@@ -173,7 +172,7 @@ function contenttype_repurpose_pluginfile($course, $cm, $context, $filearea, $ar
     if (!$args) {
         $filepath = '/';
     } else {
-        $filepath = '/'.implode('/', $args).'/';
+        $filepath = '/' . implode('/', $args) . '/';
     }
 
     // Retrieve the file from the Files API.

@@ -53,7 +53,6 @@ require_once($CFG->libdir . '/questionlib.php');
  * @copyright 2020 onward Daniel Thies <dethies@gmail.com>
  */
 class crossword extends dialogcards {
-
     /** @var $type Machine name for target type */
     public $library = 'H5P.Crossword 0.4';
 
@@ -90,16 +89,16 @@ class crossword extends dialogcards {
                 $answers = array_column($question->options->answers, 'fraction', 'answer');
                 arsort($answers);
 
-                $word = (object) array(
+                $word = (object) [
                     'fixWord' => false,
                     'clue' => strip_tags($question->questiontext, '<b><i><em><strong>'),
                     'answer' => array_keys($answers)[0],
                     'subContentId' => $this->create_subcontentid(),
-                );
+                ];
 
                 if ($files = $fs->get_area_files($this->context->id, 'question', 'questiontext', $question->id)) {
                     if (empty($this->files)) {
-                        $this->files = array();
+                        $this->files = [];
                     }
 
                     foreach ($files as $f) {
@@ -107,27 +106,27 @@ class crossword extends dialogcards {
                             $imageinfo = $f->get_imageinfo();
                             $filename = $this->getname('image', $f->get_filename());
                             $this->files['content/images/' . $filename] = $f;
-                            $word->extraClue = (object) array(
-                                'params' => (object) array(
+                            $word->extraClue = (object) [
+                                'params' => (object) [
                                     'contentName' => 'Image',
-                                    'file' => (object) array(
-                                        'copyright' => (object) array(
+                                    'file' => (object) [
+                                        'copyright' => (object) [
                                             'licensee' => 'U',
-                                        ),
+                                        ],
                                         'path' => 'images/' .  $filename,
                                         'mimetype' => $imageinfo['mimetype'],
                                         'height' => $imageinfo['height'],
                                         'width' => $imageinfo['width'],
-                                    ),
-                                ),
+                                    ],
+                                ],
                                 'library' => 'H5P.Image 1.1',
-                                'metadata' => (object) array(
+                                'metadata' => (object) [
                                     'contentName' => 'Image',
                                     'licensee' => 'U',
                                     'title' => 'Untitled image',
-                                ),
+                                ],
                                 'subContentId' => $this->create_subcontentid(),
-                            );
+                            ];
                             break;
                         }
                     }
@@ -149,8 +148,6 @@ class crossword extends dialogcards {
      */
     public function add_form_fields($mform) {
         parent::add_form_fields($mform);
-        $this->repeatelements = [];
-        $this->repeatoptions = [];
         $mform->addElement('hidden', 'background');
         $mform->setType('background', PARAM_RAW);
         $backgroundimage = [
@@ -176,7 +173,7 @@ class crossword extends dialogcards {
         if (
             ($id = $mform->getElementValue('id'))
             && !$mform->getElementValue('draftid')
-            && $record = $DB->get_record('contentbank_content', array('id' => $id))
+            && $record = $DB->get_record('contentbank_content', ['id' => $id])
         ) {
             $content = new \contenttype_repurpose\content($record);
             $configdata = json_decode($content->get_configdata());
@@ -185,7 +182,8 @@ class crossword extends dialogcards {
             ) {
                 $this->set_data($mform, $configdata);
                 $mform->setDefault(
-                    'background', $configdata->background
+                    'background',
+                    $configdata->background
                 );
                 $imagepath = json_decode($configdata->background)->params->file->path;
             }
@@ -198,7 +196,7 @@ class crossword extends dialogcards {
             (!$draftid = $mform->getElementValue('draftid') ?? 0)
             || optional_param('library', '', PARAM_TEXT)
         ) {
-            $PAGE->requires->js_call_amd('contenttype_repurpose/editbackground', 'init', array($this->context->id, 'crossword'));
+            $PAGE->requires->js_call_amd('contenttype_repurpose/editbackground', 'init', [$this->context->id, 'crossword']);
         }
 
         $image = file_prepare_draft_area(
@@ -208,7 +206,8 @@ class crossword extends dialogcards {
             'content',
             $id,
             ['subdirs' => true],
-            $OUTPUT->render_from_template( 'contenttype_repurpose/media',
+            $OUTPUT->render_from_template(
+                'contenttype_repurpose/media',
                 ['path' => $imagepath]
             )
         );
@@ -216,7 +215,7 @@ class crossword extends dialogcards {
         if (!empty($imagepath)) {
             $mform->removeElement('backgroundimage');
             $mform->insertElementBefore(
-                $mform->createElement( 'static', 'backgroundimage', get_string('backgroundimage', 'contenttype_repurpose'), $image),
+                $mform->createElement('static', 'backgroundimage', get_string('backgroundimage', 'contenttype_repurpose'), $image),
                 'background'
             );
         }
@@ -227,13 +226,13 @@ class crossword extends dialogcards {
                 && $imageinfo = $file->get_imageinfo()
             ) {
                 $this->files['content/' . $imagepath] = $file;
-                $this->background = (object) array(
+                $this->background = (object) [
                     'license' => 'U',
                     'path' => 'images/' . $file->get_filename(),
                     'height' => $imageinfo['height'],
                     'width' => $imageinfo['width'],
                     'mime' => $imageinfo['mimetype'],
-                );
+                ];
             }
         }
     }
