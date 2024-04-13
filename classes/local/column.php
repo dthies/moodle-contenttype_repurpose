@@ -228,7 +228,7 @@ class column extends dialogcards {
      * Write image subcontent
      *
      * @param stored_file $file image file
-     * @param string $title image title
+     * @param string|null $title image title
      * @return stdClass
      */
     public function write_image(stored_file $file, ?string $title): stdClass {
