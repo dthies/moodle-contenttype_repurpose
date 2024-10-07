@@ -19,7 +19,7 @@
  *
  * @package    contenttype_repurpose
  * @copyright  2020 onward Daniel Thies <dethies@gmail.com>
- * @license    http://www.gnu.org/copyleft/gpl.repurpose GNU GPL v3 or later
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace contenttype_repurpose\privacy;
@@ -28,7 +28,7 @@ namespace contenttype_repurpose\privacy;
  * Privacy provider implementation for contenttype_repurpose.
  *
  * @copyright  2020 onward Daniel Thies <dethies@gmail.com>
- * @license    http://www.gnu.org/copyleft/gpl.repurpose GNU GPL v3 or later
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class provider implements \core_privacy\local\metadata\null_provider {
     /**

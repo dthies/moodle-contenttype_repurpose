@@ -19,7 +19,7 @@
  *
  * @package    contenttype_repurpose
  * @copyright  2020 onward Daniel Thies <dethies@gmail.com>
- * @license    http://www.gnu.org/copyleft/gpl.repurpose GNU GPL v3 or later
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace contenttype_repurpose\local;
@@ -52,7 +52,7 @@ require_once($CFG->libdir . '/questionlib.php');
  * bank creation form.
  *
  * @copyright 2020 onward Daniel Thies <dethies@gmail.com>
- * @license   http://www.gnu.org/copyleft/gpl.repurpose GNU GPL v3 or later
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class question extends dialogcards {
     /** @var $type Machine name for target type */

@@ -19,7 +19,7 @@
  *
  * @package    contenttype_repurpose
  * @copyright  2020 onward Daniel Thies <dethies@gmail.com>
- * @license    http://www.gnu.org/copyleft/gpl.repurpose GNU GPL v3 or later
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 namespace contenttype_repurpose;
@@ -40,7 +40,7 @@ use stored_file;
  *
  * @package    contenttype_repurpose
  * @copyright  2020 onward Daniel Thies <dethies@gmail.com>
- * @license    http://www.gnu.org/copyleft/gpl.repurpose GNU GPL v3 or later
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class content extends \core_contentbank\content {
     /**
