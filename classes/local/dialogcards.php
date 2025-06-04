@@ -55,6 +55,9 @@ require_once($CFG->libdir . '/questionlib.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class dialogcards {
+    /** @var $cmid Question band module id */
+    public ?int $cmid = null;
+
     /** @var $context Current course context for content bank */
     public $context = null;
 
@@ -71,9 +74,11 @@ class dialogcards {
      * Constructor
      *
      * @param context $context Course context
+     * @param ?int $cmid Question bank module id
      */
-    public function __construct(context $context) {
+    public function __construct(context $context, ?int $cmid = 0) {
         $this->context = $context;
+        $this->cmid = $cmid;
         $contenttype = $this->get_contenttype();
         if (!empty($contenttype)) {
             $this->library = "{$contenttype->machine_name} {$contenttype->major_version}.{$contenttype->minor_version}";
@@ -106,11 +111,9 @@ class dialogcards {
                 'url' => $url->out(),
             ])
         );
-        if (class_exists('\\core_question\\local\\bank\\question_edit_contexts')) {
-            $contexts = new \core_question\local\bank\question_edit_contexts($this->context);
-        } else {
-            $contexts = new \question_edit_contexts($this->context);
-        }
+
+        $context = \core\context\module::instance($mform->getElementValue('cmid'));
+        $contexts = new \core_question\local\bank\question_edit_contexts($context);
         $mform->addElement(
             'questioncategory',
             'category',
@@ -174,6 +177,7 @@ class dialogcards {
         }');
 
         $fs = get_file_storage();
+        $context = \core\context\module::instance($this->cmid);
         foreach ($questions as $question) {
             if ($question->qtype == 'shortanswer' && empty($question->parent)) {
                 $answers = array_column($question->options->answers, 'fraction', 'answer');
@@ -185,7 +189,7 @@ class dialogcards {
                     'subContentId' => $this->create_subcontentid(),
                 ];
 
-                if ($files = $fs->get_area_files($this->context->id, 'question', 'questiontext', $question->id)) {
+                if ($files = $fs->get_area_files($context->id, 'question', 'questiontext', $question->id)) {
                     if (empty($this->files)) {
                         $this->files = [];
                     }
@@ -357,7 +361,8 @@ class dialogcards {
      * @return stdClass
      */
     public function get_writer($question) {
-        $question->contextid = $this->context->id;
+        $context = \core\context\module::instance($this->cmid);
+        $question->contextid = $context->id;
         if (empty($question->parent)) {
             foreach (['repurposeplus', 'repurpose'] as $plugin) {
                 $writerclass = "contenttype_$plugin\\local\\qtype_" . $question->qtype;

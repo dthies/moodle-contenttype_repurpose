@@ -22,6 +22,8 @@
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core_question\local\bank\question_bank_helper;
+
 /**
  * Return form content for various content types
  *
@@ -31,6 +33,7 @@
 function contenttype_repurpose_output_fragment_addfile(array $args): string {
     global $USER;
 
+    $cmid = $args['cmid'];
     $context = $args['contextid'];
     $library = $args['library'];
 
@@ -40,6 +43,7 @@ function contenttype_repurpose_output_fragment_addfile(array $args): string {
         $formclass = '\\contenttype_repurpose\\form\\add_file';
     }
     $form = new $formclass('#', [
+        'cmid' => $cmid,
         'contextid' => $context,
         'library' => $library,
         'plugin' => 'contenttype_repurpose',
@@ -107,6 +111,7 @@ function contenttype_repurpose_output_fragment_addfile(array $args): string {
 function contenttype_repurpose_output_fragment_formupdate(array $args): string {
     $context = $args['contextid'];
     $library = $args['library'];
+    $cmid = $args['cmid'];
 
     $url = new moodle_url('/contentbank/edit.php', [
         'contextid' => $context,
@@ -115,6 +120,7 @@ function contenttype_repurpose_output_fragment_formupdate(array $args): string {
     ]);
 
     $editor = new \contenttype_repurpose\form\editor($url, [
+        'cmid' => $cmid,
         'contextid' => $context,
         'id' => null,
         'library' => $library,
@@ -127,6 +133,33 @@ function contenttype_repurpose_output_fragment_formupdate(array $args): string {
         return $editor->render();
     }
     return '';
+}
+
+/**
+ * Return form content for various content types
+ *
+ * @param array $args The arguments area containing form data
+ * @return string HTML of form to display
+ */
+function contenttype_repurpose_output_fragment_questionbank(array $args): string {
+    global $OUTPUT, $USER;
+
+    $context = $args['context'];
+    $library = $args['library'];
+    $sharedbanks = question_bank_helper::get_activity_instances_with_shareable_questions([$context->instanceid]);
+    $recentlyviewedbanks = question_bank_helper::get_recently_used_open_banks($USER->id);
+    $baseurl = new \moodle_url('/contentbank/edit.php', [
+        'contextid' => $context->id,
+        'library' => $library,
+    ]);
+
+    return $OUTPUT->render_from_template('contenttype_repurpose/switch_question_bank', [
+        'baseurl' => $baseurl->out(false),
+        'hascoursesharedbanks' => !empty($sharedbanks),
+        'coursesharedbanks' => $sharedbanks,
+        'hasrecentlyviewedbanks' => !empty($recentlyviewedbanks),
+        'recentlyviewedbanks' => $recentlyviewedbanks,
+    ]);
 }
 
 /**

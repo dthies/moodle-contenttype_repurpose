@@ -14,12 +14,20 @@ Feature: Import column into content bank as H5P
     And the following "course enrolments" exist:
       | user     | course | role           |
       | teacher1 | C1     | editingteacher |
+    And the following "activities" exist:
+      | activity   | name    | intro           | course | idnumber |
+      | qbank      | Qbank 1 | Question bank 1 | C1     | qbank1   |
     And the following "question categories" exist:
-      | contextlevel | reference | name           |
-      | Course       | C1        | Test questions |
+      | contextlevel    | reference     | questioncategory    | name                |
+      | Activity module | qbank1        | Top                 | top                 |
+      | Activity module | qbank1        | top                 | Default for Qbank 1 |
+      | Activity module | qbank1        | Default for Qbank 1 | Subcategory         |
     And the following "questions" exist:
-      | questioncategory | qtype       | name             | template    |
-      | Test questions   | multichoice | Multi-choice-001 | two_of_four |
+      | questioncategory    | qtype       | name             | template    |
+      | Default for Qbank 1 | multichoice | Multi-choice-001 | two_of_four |
+    And the following "questions" exist:
+      | questioncategory    | qtype       | name | questiontext                            | answer 1 | grade |
+      | Default for Qbank 1 | shortanswer | SA1  | What is the national langauge in France | French   | 100%  |
     Given I log in as "admin"
     And I navigate to "H5P > Manage H5P content types" in site administration
     And I upload "contentbank/contenttype/repurpose/tests/fixtures/column-252.h5p" file to "H5P content type" filemanager
@@ -28,25 +36,11 @@ Feature: Import column into content bank as H5P
     And I wait until the page is ready
     And I log out
     And I log in as "teacher1"
-    And I am on "Course 1" course homepage
-    And I navigate to "Question bank" in current page administration
-    And I add a "Short answer" question filling the form with:
-      | Question name        | shortanswer-001                           |
-      | Question text        | What is the national langauge in France?  |
-      | General feedback     | The national langauge in France is French |
-      | Default mark         | 1                                         |
-      | Case sensitivity     | No, case is unimportant                   |
-      | id_answer_0          | French                                    |
-      | id_fraction_0        | 100%                                      |
-      | id_feedback_0        | Well done. French is correct.             |
-      | id_answer_1          | *                                         |
-      | id_fraction_1        | None                                      |
-      | id_feedback_1        | Your answer is incorrect.                 |
 
   @javascript @contenttype_repurpose_column
   Scenario: Import a column
     When I am on the "C1" "contenttype_repurpose > column" page
-    And I set the field "Category" to "Test questions"
+    And I set the field "Category" to "Default for Qbank 1"
     And I click on "Save" "button"
     And I switch to "h5p-player" class iframe
     And I switch to "h5p-iframe" class iframe

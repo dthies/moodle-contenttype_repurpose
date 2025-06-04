@@ -24,6 +24,7 @@
 
 namespace contenttype_repurpose\form;
 
+use core_question\local\bank\question_bank_helper;
 use contenttype_h5p\content;
 use contenttype_h5p\contenttype;
 use core_contentbank\form\edit_content;
@@ -67,7 +68,7 @@ class editor extends \contenttype_h5p\form\editor {
      * Defines the form fields.
      */
     protected function definition() {
-        global $CFG, $DB, $OUTPUT;
+        global $CFG, $DB, $PAGE, $OUTPUT;
 
         $mform = $this->_form;
 
@@ -105,12 +106,30 @@ class editor extends \contenttype_h5p\form\editor {
         $mform->addHelpButton('license', 'license', 'contenttype_repurpose');
 
         $context = context::instance_by_id($contextid, MUST_EXIST);
+        if (
+            !($cmid = optional_param('cmid', $this->_customdata['cmid'] ?? 0, PARAM_INT))
+            && ($context instanceof \core\context\course)
+            && $sharedbanks = question_bank_helper::get_activity_instances_with_shareable_questions([$context->instanceid])
+        ) {
+            $cmid = reset($sharedbanks)->modid;
+        }
+        $sharedbanks = question_bank_helper::get_activity_instances_with_shareable_questions([], [], [], false, $cmid);
+        $mform->addElement('static', 'questionbank', get_string('questionbank', 'core_question'), reset($sharedbanks)->name);
+        $mform->addElement('submit', 'switchquestionbank', get_string('switchbank', 'core_question'));
+        $mform->registerNoSubmitButton('switchquestionbank');
+        $mform->addElement('hidden', 'cmid', $cmid);
+        $mform->setType('cmid', PARAM_INT);
+        $PAGE->requires->js_call_amd(
+            'contenttype_repurpose/switchquestionbank',
+            'init',
+            [$context->id, $library]
+        );
 
         // Add context type specific form fields.
         $mform->addElement('hidden', 'library', $library);
         $mform->setType('library', PARAM_TEXT);
         $helperclass = $this->get_helperclass($library);
-        $this->helper = new $helperclass($context);
+        $this->helper = new $helperclass($context, $cmid);
 
         $this->helper->add_form_fields($mform);
 

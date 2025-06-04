@@ -334,7 +334,7 @@ class column extends dialogcards {
             (!$draftid = $mform->getElementValue('draftid') ?? 0)
             || optional_param('library', '', PARAM_TEXT)
         ) {
-            $PAGE->requires->js_call_amd('contenttype_repurpose/editcontent', 'init', [$this->context->id, 'column']);
+            $PAGE->requires->js_call_amd('contenttype_repurpose/editcontent', 'init', [$this->context->id, 'column', $this->cmid]);
         }
 
         $fs = get_file_storage();

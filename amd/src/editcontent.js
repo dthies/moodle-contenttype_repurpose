@@ -11,8 +11,9 @@ import templates from 'core/templates';
  *
  * @param {int} contextid Context id of content bank
  * @param {string} library Library identifier
+ * @param {int} cmid Question bank
  */
-export const init = (contextid, library) => {
+export const init = (contextid, library, cmid) => {
     'use strict';
     let form;
 
@@ -34,7 +35,7 @@ export const init = (contextid, library) => {
             let data = new FormData(root.find('form').get(0));
             e.stopPropagation();
             e.preventDefault();
-            saveForm(contextid, library, form, data, modal);
+            saveForm(contextid, library, cmid, form, data, modal);
             modal.hide();
         });
 
@@ -44,25 +45,26 @@ export const init = (contextid, library) => {
                 e.stopPropagation();
                 e.preventDefault();
                 form = e.target.closest('form');
-                editForm(contextid, library, form, button, modal);
+                editForm(contextid, library, cmid, form, button, modal);
             }
         }, true);
 
         return true;
     }).fail(notification.exception);
 
-    document.addEventListener('click', edit.bind(window, contextid, library));
+    document.addEventListener('click', edit.bind(window, contextid, library, cmid));
 };
 /**
  * Open editing modal
  *
  * @param {int} contextid Context id of content bank
  * @param {string} library Library identifier
+ * @param {int} cmid Question bank
  * @param {DOMNode} form Node for main form
  * @param {DOMNode} button The button that was clicked
  * @param {object} modal
  */
-const editForm = function(contextid, library, form, button, modal) {
+const editForm = function(contextid, library, cmid, form, button, modal) {
     'use strict';
 
     let buttons = form.querySelectorAll('[data-action="edit"]'),
@@ -72,6 +74,7 @@ const editForm = function(contextid, library, form, button, modal) {
             key: buttons.length
         },
         params = {
+            cmid: cmid,
             contextid: contextid,
             library: library
         },
@@ -96,11 +99,12 @@ const editForm = function(contextid, library, form, button, modal) {
  *
  * @param {int} contextid Context id of content bank
  * @param {string} library Library identifier
+ * @param {int} cmid Question bank
  * @param {DOMNode} form Node for main form
  * @param {FormData} data Modal data
  * @param {object} modal
  */
-const saveForm = function(contextid, library, form, data, modal) {
+const saveForm = function(contextid, library, cmid, form, data, modal) {
     'use strict';
 
     let formdata = new FormData(form),
@@ -109,6 +113,7 @@ const saveForm = function(contextid, library, form, data, modal) {
     if (!mediafiles[key]) {
         let formdata = {},
             params = {
+                cmid: cmid,
                 contextid: contextid,
                 library: library
             };
@@ -122,7 +127,7 @@ const saveForm = function(contextid, library, form, data, modal) {
                 media.metadata.license = data.get('license');
                 mediafiles[key] = media;
                 form.querySelector('input[name="mediafiles"]').setAttribute('value', JSON.stringify(mediafiles));
-                FormUpdate.updateForm(contextid, library, form);
+                FormUpdate.updateForm(contextid, library, cmid, form);
             } catch (e) {
                 modal.show();
                 templates.replaceNodeContents(modal.getRoot().find('.modal-body'), html, js);
@@ -132,7 +137,7 @@ const saveForm = function(contextid, library, form, data, modal) {
         mediafiles[key].metadata.title = data.get('title');
         mediafiles[key].metadata.license = data.get('license');
         form.querySelector('input[name="mediafiles"]').setAttribute('value', JSON.stringify(mediafiles));
-        FormUpdate.updateForm(contextid, library, form);
+        FormUpdate.updateForm(contextid, library, cmid, form);
     }
 };
 
@@ -141,9 +146,10 @@ const saveForm = function(contextid, library, form, data, modal) {
  *
  * @param {int} contextid Context id of content bank
  * @param {string} library Library identifier
+ * @param {int} cmid Question bank
  * @param {event} e Event
  */
-export const edit = function(contextid, library, e) {
+export const edit = function(contextid, library, cmid, e) {
     'use strict';
 
     let button = e.target.closest('[data-action="delete"], [data-action="left"], [data-action="right"]');
@@ -188,6 +194,6 @@ export const edit = function(contextid, library, e) {
                 break;
         }
         form.querySelector('input[name="mediafiles"]').setAttribute('value', JSON.stringify(mediafiles));
-        FormUpdate.updateForm(contextid, library, form);
+        FormUpdate.updateForm(contextid, library, cmid, form);
     }
 };

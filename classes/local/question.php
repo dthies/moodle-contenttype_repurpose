@@ -112,14 +112,18 @@ class question extends dialogcards {
     public function add_form_fields($mform) {
         global $DB, $PAGE;
 
-        $PAGE->requires->js_call_amd('contenttype_repurpose/formupdate', 'init', [$this->context->id, 'question']);
+        $PAGE->requires->js_call_amd(
+            'contenttype_repurpose/formupdate', 'init',
+            [$this->context->id, 'question', $mform->getElementValue('cmid')]
+        );
 
         parent::add_form_fields($mform);
         $mform->removeElement('description');
 
         // Add question selector.
         $questions = [];
-        $category = $DB->get_record('question_categories', ['contextid' => $this->context->id, 'parent' => 0]);
+        $context = \core\context\module::instance($mform->getElementValue('cmid'));
+        $category = $DB->get_record('question_categories', ['contextid' => $context->id, 'parent' => 0]);
         foreach (get_questions_category($category, true) as $question) {
             if (
                 question_has_capability_on($question, 'use') &&

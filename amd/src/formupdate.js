@@ -7,12 +7,13 @@ import templates from 'core/templates';
  *
  * @param {int} contextid Context id of content bank
  * @param {string} library Library identifier
+ * @param {int} cmid Question bank
  */
-const init = (contextid, library) => {
+const init = (contextid, library, cmid) => {
     'use strict';
 
-    document.removeEventListener('change', handleChange.bind(window, contextid, library));
-    document.addEventListener('change', handleChange.bind(window, contextid, library));
+    document.removeEventListener('change', handleChange.bind(window, contextid, library, cmid));
+    document.addEventListener('change', handleChange.bind(window, contextid, library, cmid));
 };
 
 /**
@@ -20,14 +21,15 @@ const init = (contextid, library) => {
  *
  * @param {int} contextid Context id of content bank
  * @param {string} library Library identifier
+ * @param {int} cmid Question bank
  * @param {event} e Event
  */
-const handleChange = (contextid, library, e) => {
+const handleChange = (contextid, library, cmid, e) => {
     if (e.target.closest('form #id_category, form #id_recurse, form #id_question, form [data-action="update"]')) {
         let form = e.target.closest('form');
         e.stopPropagation();
         e.preventDefault();
-        updateForm(contextid, library, form);
+        updateForm(contextid, library, cmid, form);
     }
 };
 
@@ -36,12 +38,14 @@ const handleChange = (contextid, library, e) => {
  *
  * @param {int} contextid Context id of content bank
  * @param {string} library Library identifier
+ * @param {int} cmid Question bank
  * @param {DOMNode} form Form element to be updated
  */
-const updateForm = (contextid, library, form) => {
+const updateForm = (contextid, library, cmid, form) => {
         let data = {},
             formdata = new FormData(form),
             params = {
+                cmid: cmid,
                 contextid: contextid,
                 library: library,
                 plugin: 'repurpose'

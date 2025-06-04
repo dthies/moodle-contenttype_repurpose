@@ -53,7 +53,10 @@ require_once($CFG->libdir . '/questionlib.php');
  * @copyright 2020 onward Daniel Thies <dethies@gmail.com>
  */
 class crossword extends dialogcards {
-    /** @var $type Machine name for target type */
+    /** @var $background Background image */
+    public $background = null;
+
+    /** @var $library Machine name for target type */
     public $library = 'H5P.Crossword 0.4';
 
     /**
@@ -84,6 +87,7 @@ class crossword extends dialogcards {
         }');
 
         $fs = get_file_storage();
+        $context = \core\context\module::instance($this->cmid);
         foreach ($questions as $question) {
             if ($question->qtype == 'shortanswer' && empty($question->parent)) {
                 $answers = array_column($question->options->answers, 'fraction', 'answer');
@@ -96,7 +100,7 @@ class crossword extends dialogcards {
                     'subContentId' => $this->create_subcontentid(),
                 ];
 
-                if ($files = $fs->get_area_files($this->context->id, 'question', 'questiontext', $question->id)) {
+                if ($files = $fs->get_area_files($context->id, 'question', 'questiontext', $question->id)) {
                     if (empty($this->files)) {
                         $this->files = [];
                     }
@@ -196,7 +200,10 @@ class crossword extends dialogcards {
             (!$draftid = $mform->getElementValue('draftid') ?? 0)
             || optional_param('library', '', PARAM_TEXT)
         ) {
-            $PAGE->requires->js_call_amd('contenttype_repurpose/editbackground', 'init', [$this->context->id, 'crossword']);
+            $PAGE->requires->js_call_amd(
+                'contenttype_repurpose/editbackground',
+                'init', [$this->context->id, 'crossword', $this->cmid]
+            );
         }
 
         $image = file_prepare_draft_area(

@@ -68,6 +68,7 @@ class flashcards extends dialogcards {
         }');
 
         $fs = get_file_storage();
+        $context = \core\context\module::instance($this->cmid);
         foreach ($questions as $question) {
             if ($question->qtype == 'shortanswer' && empty($question->parent)) {
                 $answers = array_column($question->options->answers, 'fraction', 'answer');
@@ -79,7 +80,7 @@ class flashcards extends dialogcards {
                     'subContentId' => $this->create_subcontentid(),
                 ];
 
-                if ($files = $fs->get_area_files($this->context->id, 'question', 'questiontext', $question->id)) {
+                if ($files = $fs->get_area_files($context->id, 'question', 'questiontext', $question->id)) {
                     if (empty($this->files)) {
                         $this->files = [];
                     }
