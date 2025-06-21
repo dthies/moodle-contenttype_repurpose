@@ -100,18 +100,6 @@ class dialogcards {
         $mform->addElement('text', 'description', $label);
         $mform->setType('description', PARAM_TEXT);
 
-        $url = new moodle_url('/question/edit.php', [
-            'courseid' => ($this->context->contextlevel != CONTEXT_COURSE) ? SITEID : $this->context->instanceid,
-        ]);
-        $mform->addElement(
-            'static',
-            'questionbank',
-            '',
-            $OUTPUT->render_from_template('contenttype_repurpose/questionbanklink', [
-                'url' => $url->out(),
-            ])
-        );
-
         $context = \core\context\module::instance($mform->getElementValue('cmid'));
         $contexts = new \core_question\local\bank\question_edit_contexts($context);
         $mform->addElement(

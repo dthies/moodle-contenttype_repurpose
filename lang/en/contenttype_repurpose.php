@@ -33,7 +33,6 @@ $string['duration'] = 'Duration';
 $string['editmedia'] = 'Edit media';
 $string['example'] = 'Example';
 $string['globalbackground'] = 'Global background';
-$string['gotoquestionbank'] = 'Go to question bank';
 $string['imagefile'] = 'Image file';
 $string['importcolumn'] = 'Import to Column';
 $string['importcoursepresentation'] = 'Import to Course Presentation';

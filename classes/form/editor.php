@@ -33,6 +33,8 @@ use core_h5p\factory;
 use core_h5p\helper;
 use context_user;
 use context;
+use html_writer;
+use moodle_url;
 use stdClass;
 use moodle_exception;
 use moodle_form;
@@ -114,7 +116,14 @@ class editor extends \contenttype_h5p\form\editor {
             $cmid = reset($sharedbanks)->modid;
         }
         $sharedbanks = question_bank_helper::get_activity_instances_with_shareable_questions([], [], [], false, $cmid);
-        $mform->addElement('static', 'questionbank', get_string('questionbank', 'core_question'), reset($sharedbanks)->name);
+        $mform->addElement('static', 'questionbank', get_string('questionbank', 'core_question'), html_writer::link(
+            new moodle_url('/question/edit.php', ['cmid' => $cmid]),
+            reset($sharedbanks)->name,
+            [
+                'class' => 'btn btn-secondary',
+                'target' => '_blank',
+            ]
+        ));
         $mform->addElement('submit', 'switchquestionbank', get_string('switchbank', 'core_question'));
         $mform->registerNoSubmitButton('switchquestionbank');
         $mform->addElement('hidden', 'cmid', $cmid);
