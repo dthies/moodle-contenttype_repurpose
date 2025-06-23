@@ -32,8 +32,8 @@ Feature: Import single question into content bank as H5P
   @javascript
   Scenario: Import Multiple choice question
     Given the following "questions" exist:
-      | questioncategory | qtype       | name             | template    |
-      | Default for Qbank 1   | multichoice | Multi-choice-001 | two_of_four |
+      | questioncategory    | qtype       | name             | template    |
+      | Default for Qbank 1 | multichoice | Multi-choice-001 | two_of_four |
     When I am on the "C1" "contenttype_repurpose > question" page logged in as "teacher1"
     And I set the field "Category" to "Default for Qbank 1"
     And I click on "Save" "button"
@@ -45,14 +45,44 @@ Feature: Import single question into content bank as H5P
   @javascript
   Scenario: Import short answer question
     Given the following "questions" exist:
-      | questioncategory    | qtype       | name | questiontext                            | id_answer_0 | id_fraction_0 |
-      | Default for Qbank 1 | shortanswer | SA1  | What is the national langauge in France | French      | 100%          |
-    When I log in as "teacher1"
-    And I am on the "C1" "contenttype_repurpose > question" page
+      | questioncategory    | qtype       | name            | template |
+      | Default for Qbank 1 | shortanswer | shortanswer-001 | frogtoad |
+    When I am on the "C1" "contenttype_repurpose > question" page
     And I set the field "Category" to "Default for Qbank 1"
-    And I set the field "Question" to "SA1"
+    And I set the field "Question" to "shortanswer-001"
     And I press "Save"
     And I switch to "h5p-player" class iframe
     And I switch to "h5p-iframe" class iframe
     And I click on "Click to see the answer" "button"
-    Then I should see "French"
+    And I wait until the page is ready
+    Then I should see "frog"
+
+  @javascript
+  Scenario: Import true false question
+    Given the following "questions" exist:
+      | questioncategory    | qtype     | name          | template |
+      | Default for Qbank 1 | truefalse | truefalse-001 | true     |
+    When I am on the "C1" "contenttype_repurpose > question" page
+    And I set the field "Category" to "Default for Qbank 1"
+    And I set the field "Question" to "truefalse-001"
+    And I press "Save"
+    And I switch to "h5p-player" class iframe
+    And I switch to "h5p-iframe" class iframe
+    And I click on "Check" "button"
+    And I wait until the page is ready
+    Then I should see "The answer is true"
+
+  @javascript
+  Scenario: Import essay question
+    Given the following "questions" exist:
+      | questioncategory    | qtype | name      | template |
+      | Default for Qbank 1 | essay | essay-001 | editor   |
+    When I am on the "C1" "contenttype_repurpose > question" page
+    And I set the field "Category" to "Default for Qbank 1"
+    And I set the field "Question" to "essay-001"
+    And I press "Save"
+    And I switch to "h5p-player" class iframe
+    And I switch to "h5p-iframe" class iframe
+    And I click on "Check" "button"
+    And I wait until the page is ready
+    Then I should see "Please write a story about a frog"
