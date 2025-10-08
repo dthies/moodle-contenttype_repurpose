@@ -91,7 +91,9 @@ class column extends dialogcards {
 
         $context = context::instance_by_id($data->contextid, MUST_EXIST);
 
-        $category = $DB->get_record('question_categories', ['id' => preg_replace('/,.*/', '', $data->category)]);
+        $category = $DB->get_record('question_categories', [
+            'id' => preg_replace('/,.*/', '', $data->category),
+        ], '*', IGNORE_MULTIPLE);
 
         $questions = get_questions_category($category, !empty($data->recurse));
 

@@ -123,7 +123,7 @@ class question extends dialogcards {
         // Add question selector.
         $questions = [];
         $context = \core\context\module::instance($mform->getElementValue('cmid'));
-        $category = $DB->get_record('question_categories', ['contextid' => $context->id, 'parent' => 0]);
+        $category = $DB->get_record('question_categories', ['contextid' => $context->id, 'parent' => 0], '*', IGNORE_MULTIPLE);
         foreach (get_questions_category($category, true) as $question) {
             if (
                 question_has_capability_on($question, 'use') &&
