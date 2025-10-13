@@ -202,7 +202,8 @@ class crossword extends dialogcards {
         ) {
             $PAGE->requires->js_call_amd(
                 'contenttype_repurpose/editbackground',
-                'init', [$this->context->id, 'crossword', $this->cmid]
+                'init',
+                [$this->context->id, 'crossword', $this->cmid]
             );
         }
 

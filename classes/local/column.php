@@ -112,7 +112,7 @@ class column extends dialogcards {
 
         // Image files will be added archive later, but add metadata to content.
         $this->mediafiles = $this->mediafiles ?? [];
-        $this->mediafiles = array_merge(json_decode($data->mediafiles) ?? [], $this->mediafiles);
+        $this->mediafiles = array_merge(json_decode($data->mediafiles ?? '[]'), $this->mediafiles);
         foreach ($this->mediafiles as $key => $mediafile) {
             $content->content[] = (object) [
                 'content' => $mediafile,

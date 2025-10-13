@@ -113,7 +113,8 @@ class question extends dialogcards {
         global $DB, $PAGE;
 
         $PAGE->requires->js_call_amd(
-            'contenttype_repurpose/formupdate', 'init',
+            'contenttype_repurpose/formupdate',
+            'init',
             [$this->context->id, 'question', $mform->getElementValue('cmid')]
         );
 

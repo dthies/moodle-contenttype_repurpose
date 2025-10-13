@@ -142,11 +142,11 @@ class editor extends \contenttype_h5p\form\editor {
 
         $this->helper->add_form_fields($mform);
 
-        $repeatoptions = $repeatoptions ?? [];
+        $repeatoptions = $this->helper->repeatoptions ?? [];
 
-        if (!empty($repeatelements)) {
+        if (!empty($this->helper->repeatelements)) {
             $this->repeat_elements(
-                $repeatelements,
+                $this->helper->repeatelements,
                 3,
                 $repeatoptions,
                 'option_repeats',
