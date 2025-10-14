@@ -96,6 +96,31 @@ class editor extends \contenttype_h5p\form\editor {
             'type' => get_string('import' . $library, 'contenttype_repurpose'),
         ]));
 
+        $context = context::instance_by_id($contextid, MUST_EXIST);
+        if (
+            !($cmid = optional_param('cmid', $this->_customdata['cmid'] ?? 0, PARAM_INT))
+            && ($context instanceof \core\context\course)
+            && $sharedbanks = question_bank_helper::get_activity_instances_with_shareable_questions([$context->instanceid])
+        ) {
+            $cmid = reset($sharedbanks)->modid;
+        }
+
+        // Add context type specific form fields.
+        $mform->addElement('hidden', 'library', $library);
+        $mform->setType('library', PARAM_TEXT);
+        $helperclass = $this->get_helperclass($library);
+        $this->helper = new $helperclass($context, $cmid);
+        if (empty($cmid)) {
+            $mform->addElement('html', html_writer::tag(
+                'div',
+                get_string('noquestionbanks', 'question'),
+                [
+                    'class' => 'alert alert-warning',
+                ]
+            ));
+            return;
+        }
+
         // Content name.
         $mform->addElement('text', 'name', get_string('name'));
         $mform->setType('name', PARAM_TEXT);
@@ -107,14 +132,6 @@ class editor extends \contenttype_h5p\form\editor {
         $mform->setDefault('license', $CFG->sitedefaultlicense);
         $mform->addHelpButton('license', 'license', 'contenttype_repurpose');
 
-        $context = context::instance_by_id($contextid, MUST_EXIST);
-        if (
-            !($cmid = optional_param('cmid', $this->_customdata['cmid'] ?? 0, PARAM_INT))
-            && ($context instanceof \core\context\course)
-            && $sharedbanks = question_bank_helper::get_activity_instances_with_shareable_questions([$context->instanceid])
-        ) {
-            $cmid = reset($sharedbanks)->modid;
-        }
         $sharedbanks = question_bank_helper::get_activity_instances_with_shareable_questions([], [], [], false, $cmid);
         $mform->addElement('static', 'questionbank', get_string('questionbank', 'core_question'), html_writer::link(
             new moodle_url('/question/edit.php', ['cmid' => $cmid]),
@@ -133,12 +150,6 @@ class editor extends \contenttype_h5p\form\editor {
             'init',
             [$context->id, $library]
         );
-
-        // Add context type specific form fields.
-        $mform->addElement('hidden', 'library', $library);
-        $mform->setType('library', PARAM_TEXT);
-        $helperclass = $this->get_helperclass($library);
-        $this->helper = new $helperclass($context, $cmid);
 
         $this->helper->add_form_fields($mform);
 
