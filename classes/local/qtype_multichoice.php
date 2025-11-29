@@ -58,6 +58,20 @@ class qtype_multichoice {
 
         $this->files = [];
 
+        $context = \context::instance_by_id($question->contextid);
+        $question->questiontext = format_text(
+            file_rewrite_pluginfile_urls(
+                $question->questiontext,
+                'pluginfile.php',
+                $question->contextid,
+                'question',
+                'questiontext',
+                $question->id
+            ),
+            $question->questiontextformat,
+            ['context' => $context]
+        );
+
         $this->question = $question;
 
         $contenttype = $this->get_contenttype();

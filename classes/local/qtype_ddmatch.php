@@ -17,18 +17,16 @@
 namespace contenttype_repurpose\local;
 
 use stdClass;
+use contenttype_repurpose\local\qtype_multichoice;
 
 /**
- * Question import helper for Gapfill question
+ * Question export helper for Repurpose content type
  *
  * @package    contenttype_repurpose
- * @copyright  2025 onward Daniel Thies <dethies@gmail.com>
+ * @copyright  2020 Daniel Thies <dethies@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class qtype_gapfill extends qtype_multichoice {
-    /** @var $type Machine name for target type */
-    public $library = 'H5P.DragText 1.10';
-
+class qtype_ddmatch extends qtype_match {
     /**
      * Rearrange the question data to expected H5P format
      *
@@ -36,18 +34,22 @@ class qtype_gapfill extends qtype_multichoice {
      * @return stdClass
      */
     public function process_question(stdClass $content): stdClass {
-        $content->taskDescription = '';
+        $content->taskDescription = strip_tags(
+            $this->question->questiontext,
+            '<b><i><em><strong>'
+        );
 
-        $content->textField = preg_replace('/\\[(.+?)\\]/', '*$1*', strip_tags(
-            $this->question->questiontext,
-            '<b><i><em><strong>'
-        ));
-        preg_match_all('/\\[(.+?)\\]/', strip_tags(
-            $this->question->questiontext,
-            '<b><i><em><strong>'
-        ), $matches);
-        if ($distractors = array_diff(array_column($this->question->options->answers, 'answer'), $matches[1])) {
-            $content->distractors = '*' . implode('*,*', $distractors) . '*';
+        $context = \context::instance_by_id($this->question->contextid);
+        $content->textField = '';
+        foreach ($this->question->options->subquestions as $subquestion) {
+            $content->textField .= ' *' . strip_tags(
+                $this->question->questiontext,
+                '<b><i><em><strong>'
+            );
+            $content->textField .= '* ' . strip_tags(
+                format_text($subquestion->questiontext, $subquestion->questiontextformat, ['context' => $context]),
+                '<b><i><em><strong>'
+            ) . "\n\n";
         }
 
         $content->background = $content->media ?? null;
