@@ -1,5 +1,5 @@
 import Fragment from 'core/fragment';
-import ModalFactory from 'core/modal_factory';
+import Modal from 'core/modal_cancel';
 import notification from 'core/notification';
 import {get_string as getString} from 'core/str';
 
@@ -9,15 +9,15 @@ import {get_string as getString} from 'core/str';
  * @param {int} contextid Context id of content bank
  * @param {string} library Library identifier
  */
-export const init = (contextid, library) => {
+export const init = async(contextid, library) => {
     'use strict';
 
-    ModalFactory.create({
-        large: false,
-        title: getString('switchbank', 'core_question'),
-        type: ModalFactory.types.CANCEL,
-        body: 'content'
-    }).then(function(modal) {
+    try {
+        const modal = await Modal.create({
+            large: false,
+            title: getString('switchbank', 'core_question'),
+            body: 'content'
+        });
         document.addEventListener('click', e => {
             const button = e.target.closest('input[name="switchquestionbank"]');
             const params = {
@@ -36,7 +36,7 @@ export const init = (contextid, library) => {
                 modal.show();
             }
         }, true);
-
-        return true;
-    }).fail(notification.exception);
+    } catch (e) {
+        notification.exception(e);
+    }
 };

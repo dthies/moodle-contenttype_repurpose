@@ -1,7 +1,7 @@
 import FormUpdate from 'contenttype_repurpose/formupdate';
 import Fragment from 'core/fragment';
 import ModalEvents from 'core/modal_events';
-import ModalFactory from 'core/modal_factory';
+import Modal from 'core/modal_save_cancel';
 import notification from 'core/notification';
 import {get_string as getString} from 'core/str';
 import templates from 'core/templates';
@@ -13,17 +13,17 @@ import templates from 'core/templates';
  * @param {string} library Library identifier
  * @param {int} cmid Question bank
  */
-export const init = (contextid, library, cmid) => {
+export const init = async(contextid, library, cmid) => {
     'use strict';
     let form;
 
-    ModalFactory.create({
-        large: false,
-        title: getString('addfile', 'contenttype_repurpose'),
-        type: ModalFactory.types.SAVE_CANCEL,
-        body: ''
-    }).then(function(modal) {
-        let root = modal.getRoot();
+    try {
+        const modal = await Modal.create({
+            large: false,
+            title: getString('addfile', 'contenttype_repurpose'),
+            body: ''
+        });
+        const root = modal.getRoot();
         root.on('submit', function(e) {
             let data = new FormData(root.find('form').get(0));
             e.stopPropagation();
@@ -48,9 +48,9 @@ export const init = (contextid, library, cmid) => {
                 editForm(contextid, library, cmid, form, button, modal);
             }
         }, true);
-
-        return true;
-    }).fail(notification.exception);
+    } catch (e) {
+        notification.exception(e);
+    }
 
     document.addEventListener('click', edit.bind(window, contextid, cmid, library));
 };
