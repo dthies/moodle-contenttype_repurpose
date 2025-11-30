@@ -70,7 +70,7 @@ class editor extends \contenttype_h5p\form\editor {
      * Defines the form fields.
      */
     protected function definition() {
-        global $CFG, $DB, $PAGE, $OUTPUT;
+        global $CFG, $DB, $PAGE, $OUTPUT, $SESSION;
 
         $mform = $this->_form;
 
@@ -98,12 +98,13 @@ class editor extends \contenttype_h5p\form\editor {
 
         $context = context::instance_by_id($contextid, MUST_EXIST);
         if (
-            !($cmid = optional_param('cmid', $this->_customdata['cmid'] ?? 0, PARAM_INT))
+            !($cmid = optional_param('cmid', $this->_customdata['cmid'] ?? $SESSION->repurposequestionbank ?? 0, PARAM_INT))
             && ($context instanceof \core\context\course)
             && $sharedbanks = question_bank_helper::get_activity_instances_with_shareable_questions([$context->instanceid])
         ) {
             $cmid = reset($sharedbanks)->modid;
         }
+        $SESSION->repurposequestionbank = $cmid;
 
         // Add context type specific form fields.
         $mform->addElement('hidden', 'library', $library);
