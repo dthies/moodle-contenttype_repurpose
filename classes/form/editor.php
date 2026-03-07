@@ -102,7 +102,11 @@ class editor extends \contenttype_h5p\form\editor {
             && ($context instanceof \core\context\course)
             && $sharedbanks = question_bank_helper::get_activity_instances_with_shareable_questions([$context->instanceid])
         ) {
-            $cmid = reset($sharedbanks)->modid;
+            if ($CFG->branch > 501) {
+                $cmid = reset($sharedbanks)->get_formatted()->modid;
+            } else {
+                $cmid = reset($sharedbanks)->modid;
+            }
         }
         $SESSION->repurposequestionbank = $cmid;
 
@@ -134,9 +138,14 @@ class editor extends \contenttype_h5p\form\editor {
         $mform->addHelpButton('license', 'license', 'contenttype_repurpose');
 
         $sharedbanks = question_bank_helper::get_activity_instances_with_shareable_questions([], [], [], false, $cmid);
+        if ($CFG->branch > 501) {
+            $name = reset($sharedbanks)->get_formatted()->name;
+        } else {
+            $name = reset($sharedbanks)->name;
+        }
         $mform->addElement('static', 'questionbank', get_string('questionbank', 'core_question'), html_writer::link(
             new moodle_url('/question/edit.php', ['cmid' => $cmid]),
-            reset($sharedbanks)->name,
+            $name,
             [
                 'class' => 'btn btn-secondary',
                 'target' => '_blank',
