@@ -142,7 +142,7 @@ function contenttype_repurpose_output_fragment_formupdate(array $args): string {
  * @return string HTML of form to display
  */
 function contenttype_repurpose_output_fragment_questionbank(array $args): string {
-    global $OUTPUT, $USER;
+    global $CFG, $OUTPUT, $USER;
 
     $context = $args['context'];
     $library = $args['library'];
@@ -152,6 +152,20 @@ function contenttype_repurpose_output_fragment_questionbank(array $args): string
         'contextid' => $context->id,
         'library' => $library,
     ]);
+    if ($CFG->branch > 501) {
+        $sharedbanks = array_map(function ($bank) {
+            return [
+                'modid' => $bank->cminfo->id,
+                'name' => $bank->cminfo->name,
+            ];
+        }, $sharedbanks);
+        $recentlyviewedbanks = array_map(function ($bank) {
+            return [
+                'modid' => $bank->cminfo->id,
+                'coursenamebankname' => get_course($bank->cminfo->course)->shortname . ' - ' .  $bank->cminfo->name,
+            ];
+        }, $recentlyviewedbanks);
+    }
 
     return $OUTPUT->render_from_template('contenttype_repurpose/switch_question_bank', [
         'baseurl' => $baseurl->out(false),
