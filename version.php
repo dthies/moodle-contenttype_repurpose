@@ -28,5 +28,5 @@ $plugin->component = 'contenttype_repurpose';
 $plugin->release = '1.4.2';
 $plugin->version = 2025060309;
 $plugin->requires = 2025040800; // Requires this Moodle version 5.0.
-$plugin->supported = [500, 501];
+$plugin->supported = [500, 502];
 $plugin->maturity = MATURITY_STABLE;
