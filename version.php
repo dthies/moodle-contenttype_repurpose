@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'contenttype_repurpose';
 $plugin->release = '1.4.2';
-$plugin->version = 2025060309;
+$plugin->version = 2025060310;
 $plugin->requires = 2025040800; // Requires this Moodle version 5.0.
-$plugin->supported = [500, 502];
+$plugin->supported = [500, 503];
 $plugin->maturity = MATURITY_STABLE;
